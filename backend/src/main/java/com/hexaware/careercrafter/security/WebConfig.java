@@ -10,8 +10,6 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 @Configuration
 public class WebConfig {
 	
-    private static final String UPLOAD_DIR = "file:///D:/MyEclipseWorkspace/CareerCrafter/certificates/";
-
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
@@ -24,11 +22,6 @@ public class WebConfig {
                         .allowCredentials(true);
             }
             
-            @Override
-            public void addResourceHandlers(ResourceHandlerRegistry registry) {
-                registry.addResourceHandler("/files/**")
-                        .addResourceLocations(UPLOAD_DIR);
-            }
         };
     }
 }

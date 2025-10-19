@@ -11,10 +11,12 @@ import {
   deleteUser,
 } from "../../api/api";
 import { AuthContext } from "../../auth/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import yourBackgroundImage from "../../assets/JobSeeker.jpg";
 import Password from "../Password";
 import axios from "axios";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const educationSchema = yup.object({
   level: yup.string().required("Level is required"),
@@ -92,10 +94,11 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
   const { user, setUser } = useContext(AuthContext);
   const userId = user?.userId;
   const storedId = user?.jobSeekerId;
+  const location = useLocation();
 
   const [loading, setLoading] = useState(true);
   const [existingProfile, setExistingProfile] = useState(null);
-  const [applications, setApplications] = useState([]); // ✅ applications state
+  const [applications, setApplications] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteEmail, setDeleteEmail] = useState("");
@@ -148,7 +151,6 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
     },
   });
 
-  // RHF field arrays for dynamic fields
   const {
     fields: educationFields,
     append: appendEducation,
@@ -170,7 +172,28 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
     remove: removeSocial,
   } = useFieldArray({ control, name: "socialLinks" });
 
-  // ✅ Load JobSeeker profile
+  // Handle sidebar-driven mode and modals
+  useEffect(() => {
+    if (!location.state) return;
+
+    if (location.state.mode === "edit") {
+      setIsEditing(true);
+    } else if (location.state.mode === "create") {
+      setIsEditing(true);
+    } else if (location.state.mode === "view") {
+      setIsEditing(false);
+    }
+
+    if (location.state.openChangePassword) {
+      setShowChangePassword(true);
+    }
+    if (location.state.openDeleteAccount) {
+      setShowDeleteModal(true);
+    }
+    navigate(location.pathname, { replace: true, state: null });
+  }, [location.state]);
+
+  // Load JobSeeker profile
   useEffect(() => {
     const loadProfile = async () => {
       try {
@@ -207,12 +230,11 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
     loadProfile();
   }, [userId, storedId, setValue, getValues]);
 
-  // ✅ Fetch applications safely (runs after profile is loaded)
+  // Fetch applications
   useEffect(() => {
     const fetchApplications = async () => {
       const jobSeekerId = existingProfile?.jobSeekerId;
-      if (!jobSeekerId) return; // ❌ don't call API if null
-
+      if (!jobSeekerId) return;
       try {
         const res = await axios.get(
           `http://localhost:8081/api/applications/jobseeker/${jobSeekerId}`
@@ -225,7 +247,7 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
     fetchApplications();
   }, [existingProfile]);
 
-  // ✅ Form submit
+  // Form submit
   async function onSubmit(data) {
     try {
       if (data.dateOfBirth) {
@@ -246,11 +268,11 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
       if (existingProfile?.jobSeekerId) {
         data.jobSeekerId = existingProfile.jobSeekerId;
         res = await updateJobSeeker(data);
-        alert("Job Seeker profile updated successfully");
+        toast.success("Job Seeker profile updated successfully");
       } else {
         data.userId = parseInt(userId, 10);
         res = await createJobSeeker(data);
-        alert("Job Seeker profile created successfully");
+        toast.success("Job Seeker profile created successfully");
       }
 
       setExistingProfile(res.data);
@@ -264,11 +286,11 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
       }));
     } catch (err) {
       console.error(err);
-      alert("Error saving profile");
+  toast.error(err.response?.data || "Error saving profile");
     }
   }
 
-  // ✅ Delete account
+  // Delete account
   async function handleDeleteAccount(e) {
     e.preventDefault();
     setDeleteError("");
@@ -284,12 +306,13 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
         return;
       }
       await deleteUser(userId);
-      alert("Account deleted successfully.");
+      toast.success("Account deleted successfully.");
       setUser(null);
       localStorage.clear();
       navigate("/");
     } catch (err) {
       setDeleteError(err.response?.data || "Unexpected error");
+      toast.error(err.response?.data || "Failed to delete account");
       setDeleting(false);
     }
   }
@@ -305,7 +328,7 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
       </div>
     );
 
-  // ✅ View mode
+  // View mode
   if (!isEditing)
     return (
       <div
@@ -359,42 +382,84 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
 
             <div>
               <strong>Education:</strong>
-              <ul>
-                {(existingProfile?.educationDetails || []).map((edu, idx) => (
-                  <li key={idx}>
-                    {edu.level} @ {edu.institutionName} ({edu.startYear} -{" "}
-                    {edu.endYear}) - {edu.location}
-                  </li>
-                ))}
-              </ul>
+              {(existingProfile?.educationDetails || []).length > 0 ? (
+                <ul style={{ marginBottom: 0 }}>
+                  {existingProfile.educationDetails.map((edu, idx) => (
+                    <li key={idx} style={{ marginBottom: 8 }}>
+                      <div>
+                        <span style={{ fontWeight: 500 }}>{edu.level}</span>
+                        {" @ "}
+                        <span>{edu.institutionName}</span>
+                        {edu.stream && <> (Stream: {edu.stream})</>}
+                      </div>
+                      <div>
+                        {edu.startYear} - {edu.endYear}, {edu.location}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <span> - </span>
+              )}
             </div>
 
-            <div>
+            <div style={{ marginTop: 12 }}>
               <strong>Certificates:</strong>
-              <ul>
-                {(existingProfile?.certificates || []).map((cert, idx) => (
-                  <li key={idx}>
-                    {cert.certificateName} ({cert.organization}) [
-                    {cert.startDate} - {cert.endDate}]
-                  </li>
-                ))}
-              </ul>
+              {(existingProfile?.certificates || []).length > 0 ? (
+                <ul style={{ marginBottom: 0 }}>
+                  {existingProfile.certificates.map((cert, idx) => (
+                    <li key={idx} style={{ marginBottom: 8 }}>
+                      <div>
+                        <span style={{ fontWeight: 500 }}>
+                          {cert.certificateName}
+                        </span>
+                        {" ("}
+                        {cert.organization}
+                        {")"}
+                      </div>
+                      <div>
+                        {cert.startDate ? cert.startDate : "?"} -{" "}
+                        {cert.endDate ? cert.endDate : "?"}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <span> - </span>
+              )}
             </div>
 
-            <div>
+            <div style={{ marginTop: 12 }}>
               <strong>Projects:</strong>
-              <ul>
-                {(existingProfile?.projects || []).map((proj, idx) => (
-                  <li key={idx}>
-                    {proj.projectName}: {proj.description}{" "}
-                    {proj.link && (
-                      <a href={proj.link} target="_blank" rel="noreferrer">
-                        [link]
-                      </a>
-                    )}
-                  </li>
-                ))}
-              </ul>
+              {(existingProfile?.projects || []).length > 0 ? (
+                <ul style={{ marginBottom: 0 }}>
+                  {existingProfile.projects.map((proj, idx) => (
+                    <li key={idx} style={{ marginBottom: 8 }}>
+                      <div>
+                        <span style={{ fontWeight: 500 }}>
+                          {proj.projectName}
+                        </span>
+                        {": "}
+                        {proj.description}
+                        {proj.link && (
+                          <>
+                            {" "}
+                            <a
+                              href={proj.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              [link]
+                            </a>
+                          </>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <span> - </span>
+              )}
             </div>
 
             <div>
@@ -411,22 +476,7 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
               </ul>
             </div>
 
-            {/* Applications Section */}
-            <div className="mt-4">
-              <strong>Applications:</strong>
-              {applications.length > 0 ? (
-                <ul>
-                  {applications.map((app) => (
-                    <li key={app.applicationId}>
-                      Job: {app.jobTitle} | Status: {app.status}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>No applications found.</p>
-              )}
-            </div>
-
+            {/*
             <div className="mt-4">
               <button
                 className="btn btn-primary me-2"
@@ -447,8 +497,9 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
                 Delete Account
               </button>
             </div>
+            */}
 
-            {/* ✅ Updated Change Password Modal */}
+            {/* Modals outside card */}
             {showChangePassword && (
               <div
                 style={{
@@ -457,20 +508,31 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
                   left: 0,
                   width: "100vw",
                   height: "100vh",
-                  background: "rgba(0,0,0,0.5)",
+                  background: "rgba(0,0,0,0.6)",
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
                   zIndex: 1050,
                 }}
+                onMouseDown={(e) => {
+                  if (e.target === e.currentTarget)
+                    setShowChangePassword(false);
+                }}
               >
                 <div
-                  className="card p-3"
-                  style={{ maxWidth: 500, width: "90%" }}
+                  className="card shadow-lg p-4"
+                  style={{
+                    width: "100%",
+                    maxWidth: "500px",
+                    borderRadius: "12px",
+                    position: "relative",
+                  }}
+                  onMouseDown={(e) => e.stopPropagation()}
                 >
                   <button
                     type="button"
-                    className="btn-close float-end"
+                    className="btn-close"
+                    style={{ position: "absolute", top: 15, right: 15 }}
                     onClick={() => setShowChangePassword(false)}
                   ></button>
                   <Password isChangePassword={true} userEmail={user?.email} />
@@ -478,7 +540,6 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
               </div>
             )}
 
-            {/* ✅ Updated Delete Account Modal */}
             {showDeleteModal && (
               <div
                 style={{
@@ -487,65 +548,66 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
                   left: 0,
                   width: "100vw",
                   height: "100vh",
-                  background: "rgba(0,0,0,0.5)",
+                  background: "rgba(0,0,0,0.6)",
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
                   zIndex: 1050,
                 }}
+                onMouseDown={(e) => {
+                  if (e.target === e.currentTarget) setShowDeleteModal(false);
+                }}
               >
                 <div
                   className="card p-3"
-                  style={{ maxWidth: 500, width: "90%" }}
+                  style={{
+                    maxWidth: "500px",
+                    width: "100%",
+                    borderRadius: "12px",
+                    position: "relative",
+                  }}
+                  onMouseDown={(e) => e.stopPropagation()}
                 >
-                  {/* Close button */}
-                  <button
-                    type="button"
-                    className="btn-close float-end"
-                    onClick={() => setShowDeleteModal(false)}
-                  ></button>
-                  <h5>Confirm Account Deletion</h5>
-                  <p>
-                    This action is irreversible. Please confirm your email and
-                    password.
-                  </p>
-                  <form onSubmit={handleDeleteAccount}>
-                    <input
-                      type="email"
-                      className="form-control mb-2"
-                      placeholder="Email"
-                      value={deleteEmail}
-                      onChange={(e) => setDeleteEmail(e.target.value)}
-                      required
-                      autoFocus
-                    />
-                    <input
-                      type="password"
-                      className="form-control mb-2"
-                      placeholder="Password"
-                      value={deletePassword}
-                      onChange={(e) => setDeletePassword(e.target.value)}
-                      required
-                    />
-                    {deleteError && (
-                      <div className="text-danger mb-2">{deleteError}</div>
-                    )}
-                    <button
-                      type="submit"
-                      className="btn btn-danger me-2"
-                      disabled={deleting}
-                    >
-                      {deleting ? "Deleting..." : "Delete Account"}
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      disabled={deleting}
-                      onClick={() => setShowDeleteModal(false)}
-                    >
-                      Cancel
-                    </button>
-                  </form>
+                  <div className="modal-content p-3">
+                    <h5>Delete Account</h5>
+                    <p>Enter your credentials to confirm:</p>
+                    <form onSubmit={handleDeleteAccount}>
+                      <input
+                        type="email"
+                        className="form-control mb-2"
+                        placeholder="Email"
+                        value={deleteEmail}
+                        onChange={(e) => setDeleteEmail(e.target.value)}
+                        required
+                      />
+                      <input
+                        type="password"
+                        className="form-control mb-2"
+                        placeholder="Password"
+                        value={deletePassword}
+                        onChange={(e) => setDeletePassword(e.target.value)}
+                        required
+                      />
+                      {deleteError && (
+                        <small className="text-danger">{deleteError}</small>
+                      )}
+                      <div className="d-flex justify-content-end mt-2">
+                        <button
+                          type="submit"
+                          className="btn btn-danger me-2"
+                          disabled={deleting}
+                        >
+                          Delete
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-close"
+                          style={{ position: "absolute", top: 15, right: 15 }}
+                          onClick={() => setShowDeleteModal(false)}
+                        ></button>
+                      </div>
+                    </form>
+                  </div>
                 </div>
               </div>
             )}
@@ -554,7 +616,7 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
       </div>
     );
 
-  // ✅ Edit/Create mode
+  // Edit/Create mode
   return (
     <div className="container d-flex justify-content-center align-items-center my-5">
       <div className="card shadow p-4" style={{ maxWidth: 600, width: "100%" }}>
@@ -633,7 +695,6 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
             />
             <small className="text-danger">{errors.aboutMe?.message}</small>
           </div>
-
           {/* Education Section */}
           <div className="mb-3">
             <label className="form-label">Education</label>
@@ -718,7 +779,6 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
                 : ""}
             </small>
           </div>
-
           {/* Certificates Section */}
           <div className="mb-3">
             <label className="form-label">Certificates</label>
@@ -776,7 +836,6 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
               Add Certificate
             </button>
           </div>
-
           {/* Projects Section */}
           <div className="mb-3">
             <label className="form-label">Projects</label>
@@ -826,7 +885,6 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
               Add Project
             </button>
           </div>
-
           {/* Social Links Section */}
           <div className="mb-3">
             <label className="form-label">Social Links</label>
@@ -866,7 +924,6 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
               Add Social Link
             </button>
           </div>
-
           {/* Submit & Cancel */}
           <button
             type="submit"

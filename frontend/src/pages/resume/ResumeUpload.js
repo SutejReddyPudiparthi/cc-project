@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import api from "../../api/api";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function ResumeUpload({ onUploaded }) {
   const [file, setFile] = useState(null);
@@ -10,7 +12,7 @@ export default function ResumeUpload({ onUploaded }) {
     const seekerId = localStorage.getItem("jobSeekerId");
 
     if (!file || !seekerId) {
-      alert("Please select a file and ensure you are logged in as Job Seeker");
+      toast.error("Please select a file and ensure you are logged in as Job Seeker", { position: "top-right" });
       return;
     }
 
@@ -19,13 +21,13 @@ export default function ResumeUpload({ onUploaded }) {
     const isValidType = allowedTypes.some((type) => fileName.endsWith(type));
 
     if (!isValidType) {
-      alert("Please upload only PDF, DOC, or DOCX files");
+      toast.error("Please upload only PDF, DOC, or DOCX files", { position: "top-right" });
       return;
     }
 
     const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
-      alert("File size must be less than 10MB");
+      toast.error("File size must be less than 10MB", { position: "top-right" });
       return;
     }
 
@@ -39,7 +41,7 @@ export default function ResumeUpload({ onUploaded }) {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      alert("Resume uploaded successfully!");
+      toast.success("Resume uploaded successfully!", { position: "top-right" });
       setFile(null);
 
       const fileInput = document.querySelector('input[type="file"]');
@@ -48,7 +50,7 @@ export default function ResumeUpload({ onUploaded }) {
       if (onUploaded) onUploaded();
     } catch (err) {
       const errorMessage = err.response?.data || err.message || "Upload failed";
-      alert("Upload failed: " + errorMessage);
+      toast.error("Upload failed: " + errorMessage, { position: "top-right" });
     } finally {
       setUploading(false);
     }

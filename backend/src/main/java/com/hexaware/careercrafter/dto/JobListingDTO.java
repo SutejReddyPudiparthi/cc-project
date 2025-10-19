@@ -67,4 +67,7 @@ public class JobListingDTO {
 
     @Size(max = 500, message = "Required Skills cannot exceed 500 characters")
     private String requiredSkills;
+    
+    private int totalApplicants;
+
 }

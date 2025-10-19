@@ -10,7 +10,6 @@ const JobSeekerDashboard = () => {
 
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
-  const [appliedJobs, setAppliedJobs] = useState([]);
   const [recommendedJobs, setRecommendedJobs] = useState([]);
   const [savedJobsIds, setSavedJobsIds] = useState([]);
   const [jobsList, setJobsList] = useState([]);
@@ -22,37 +21,35 @@ const JobSeekerDashboard = () => {
       return;
     }
 
-    const fetchAll = async () => {
+    const fetchDashboard = async () => {
       setLoading(true);
       try {
-        const [profileRes, appliedRes, recommendedRes, jobsRes] =
-          await Promise.all([
-            api.get(`/jobseekers/${user.jobSeekerId}`),
-            api.get(`/applications/jobseeker/${user.jobSeekerId}`),
-            api.get(`/jobseekers/${user.jobSeekerId}/recommendations`),
-            api.get(`/joblistings`),
-          ]);
+        // Fetch profile and recommendations in parallel
+        const [profileRes, recommendedRes] = await Promise.all([
+          api.get(`/jobseekers/${user.jobSeekerId}`),
+          api.get(`/jobseekers/${user.jobSeekerId}/recommendations`),
+        ]);
+
         setProfile(profileRes.data);
-        setJobsList(jobsRes.data);
-        const jobsMap = {};
-        jobsRes.data.forEach((job) => {
-          jobsMap[job.jobListingId] = job.title;
-        });
-        const enrichedApps = appliedRes.data.map((app) => ({
-          ...app,
-          title: jobsMap[app.jobListingId] || "Untitled Job",
-        }));
-        setAppliedJobs(enrichedApps);
         setRecommendedJobs(recommendedRes.data);
+
+        // Fetch only saved jobs if any
         const saved = localStorage.getItem("savedJobs");
         const savedArr = saved ? JSON.parse(saved) : [];
-        setSavedJobsIds(savedArr);
+        if (savedArr.length > 0) {
+          const savedJobsRes = await api.get(
+            `/joblistings?ids=${savedArr.join(",")}`
+          );
+          setSavedJobsIds(savedJobsRes.data); // directly store full job objects
+        }
       } catch (err) {
         console.error("Failed to load dashboard data", err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
-    fetchAll();
+
+    fetchDashboard();
   }, [user]);
 
   if (loading) {
@@ -68,40 +65,7 @@ const JobSeekerDashboard = () => {
 
   return (
     <div className="container my-4" style={{ maxWidth: 900 }}>
-      <h2>Welcome back, {profile?.fullName || user.email}</h2>
-      <section className="mb-4 p-3 border rounded shadow-sm">
-        <h4>Applied Jobs ({appliedJobs.length})</h4>
-        {appliedJobs.length === 0 ? (
-          <p>You have not applied to any jobs yet.</p>
-        ) : (
-          <ul className="list-group">
-            {appliedJobs.slice(0, 5).map((app) => (
-              <li
-                key={app.applicationId}
-                className="list-group-item d-flex justify-content-between"
-                style={{
-                  pointerEvents: "none",
-                  userSelect: "text",
-                  cursor: "default",
-                }}
-              >
-                <span style={{ color: "#1976d2", fontWeight: "600" }}>
-                  {app.title}
-                </span>
-                <span
-                  className="badge bg-info"
-                  style={{ fontWeight: "500", fontSize: "0.9em" }}
-                >
-                  {app.status}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-        <Link to="/my-applications" className="btn btn-link mt-2 p-0">
-          View All Applications
-        </Link>
-      </section>
+      <h2>Welcome back, {profile?.fullName || user.email}!</h2>
       <section className="mb-4 p-3 border rounded shadow-sm">
         <h4>Recommended Jobs ({recommendedJobs.length})</h4>
         {recommendedJobs.length === 0 ? (

@@ -1,7 +1,10 @@
 import React, { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { FaSignInAlt } from "react-icons/fa";
 import api from "../api/api";
 import { AuthContext } from "../auth/AuthContext";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import loginBg from "../assets/Login.jpg";
 
 export default function Login() {
@@ -27,6 +30,7 @@ export default function Login() {
 
       if (!user) {
         setError("User not found in database");
+        toast.error("User not found in database", { position: "top-right" });
         return;
       }
 
@@ -78,10 +82,12 @@ export default function Login() {
         jobSeekerId,
         employerId,
       });
+      toast.success("Login successful!", { position: "top-right" });
       navigate("/");
     } catch (err) {
       const msg = err.response?.data || "Invalid credentials or server error.";
       setError(msg);
+      toast.error(msg, { position: "top-right" });
     }
   }
 
@@ -149,7 +155,7 @@ export default function Login() {
             className="btn btn-primary w-100"
             disabled={!email || !password}
           >
-            Login
+            <FaSignInAlt /> Login
           </button>
         </form>
         <div className="mt-3 text-center">

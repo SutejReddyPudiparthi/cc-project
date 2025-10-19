@@ -120,13 +120,16 @@ export default function Home() {
       </div>
       {/* === End Combined Card === */}
 
-      <Link
-        to="/jobs"
-        className="btn btn-primary btn-lg mb-5 px-4 py-2 rounded-pill shadow-sm"
-        style={{ fontWeight: "500", letterSpacing: "0.02em" }}
-      >
-        Browse Jobs
-      </Link>
+      {/* === Browse Jobs Button (Only for Job Seekers) === */}
+      {isJobSeeker && (
+        <Link
+          to="/jobs"
+          className="btn btn-primary btn-lg mb-5 px-4 py-2 rounded-pill shadow-sm"
+          style={{ fontWeight: "500", letterSpacing: "0.02em" }}
+        >
+        <FaSearch/>  Browse Jobs
+        </Link>
+      )}
 
       <div
         style={{

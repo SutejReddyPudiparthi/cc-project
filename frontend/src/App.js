@@ -19,6 +19,9 @@ import { AuthProvider } from "./auth/AuthContext";
 import PrivateRoute from "./auth/PrivateRoute";
 import Password from "./pages/Password";
 import Footer from "./components/Footer";
+import NotificationPage from "./pages/notifications/NotificationPage";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
@@ -130,9 +133,23 @@ function App() {
 
           <Route path="/reset-password" element={<Password />} />
 
+          <Route path="/notifications" element={<NotificationPage />} />
+
           <Route path="*" element={<h2>Page Not Found</h2>} />
         </Routes>
         <Footer />
+        {/* Toast container */}
+        <ToastContainer
+          position="top-right"
+          autoClose={3000} // auto close after 3s
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
       </Router>
     </AuthProvider>
   );

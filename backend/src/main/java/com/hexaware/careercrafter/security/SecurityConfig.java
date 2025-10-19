@@ -37,6 +37,7 @@ public class SecurityConfig {
           .authorizeHttpRequests(auth -> auth
             .requestMatchers("/api/auth/**", "/test-exceptions/**").permitAll()
             .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/jobseekers", "/api/employers").permitAll()
+            .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/notifications/read/**").authenticated()
             .anyRequest().authenticated())
           .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
           .authenticationProvider(daoAuthenticationProvider())

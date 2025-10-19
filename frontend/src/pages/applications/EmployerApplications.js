@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import api from "../../api/api";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const STATUS_OPTIONS = [
   "APPLIED",
@@ -73,6 +75,10 @@ export default function EmployerApplications() {
             resumeId,
           };
         });
+
+        apps.sort(
+          (a, b) => new Date(b.applicationDate) - new Date(a.applicationDate)
+        );
         setApplications(apps);
         setAllApplications(apps);
       } catch (err) {
@@ -131,8 +137,11 @@ export default function EmployerApplications() {
         apps.map((a) => (a.applicationId === id ? { ...a, status } : a))
       );
       setStatusUpdate({ id: null, status: null });
+      toast.success(
+        `Application #${app.applicationId} status updated to "${status}"`
+      );
     } catch (err) {
-      alert(
+      toast.error(
         `Error ${err.response?.status}: ${err.response?.data || err.message}`
       );
     }
@@ -308,9 +317,35 @@ export default function EmployerApplications() {
       ))}
 
       {showProfileModal && selectedJobSeekerId && (
-        <div className="modal show d-block" tabIndex="-1">
-          <div className="modal-dialog modal-lg">
-            <div className="modal-content">
+        <div
+          className="modal show d-block"
+          tabIndex="-1"
+          style={{
+            background: "rgba(0,0,0,0.36)",
+            position: "fixed",
+            inset: 0,
+            zIndex: 1060,
+          }}
+        >
+          <div
+            className="modal-dialog modal-lg"
+            style={{
+              maxWidth: 700,
+              width: "90%",
+              margin: "2rem auto",
+            }}
+          >
+            <div
+              className="modal-content"
+              style={{
+                border: "2px solid #1976d2",
+                borderRadius: 14,
+                boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+                maxHeight: "80vh",
+                overflowY: "auto",
+                background: "#fff",
+              }}
+            >
               <div className="modal-header">
                 <h5 className="modal-title">
                   Job Seeker Profile (ID: {selectedJobSeekerId})
@@ -321,7 +356,15 @@ export default function EmployerApplications() {
                   onClick={closeProfileModal}
                 />
               </div>
-              <div className="modal-body">
+              <div
+                className="modal-body"
+                style={{
+                  overflowY: "auto",
+                  borderRadius: 12, // Must match modal's border radius
+                  paddingRight: 12,
+                  maxHeight: "65vh", // a bit less than content, to keep header visible when scrolled
+                }}
+              >
                 {profileLoading && <div>Loading...</div>}
                 {profileError && (
                   <div className="text-danger">{profileError}</div>
@@ -334,18 +377,103 @@ export default function EmployerApplications() {
                     <br />
                     <b>Phone:</b> {profile.phone}
                     <br />
-                    <b>Education:</b> {profile.education}
-                    <br />
-                    <b>Experience:</b> {profile.experience}
-                    <br />
-                    <b>Skills:</b> {profile.skills}
-                    <br />
                     <b>Gender:</b> {profile.gender}
                     <br />
                     <b>Date of Birth:</b> {profile.dateOfBirth}
                     <br />
                     <b>Address:</b> {profile.address}
                     <br />
+                    <b>About Me:</b> {profile.aboutMe}
+                    <br />
+                    <b>Skills:</b> {profile.skills}
+                    <br />
+                    <b>Experience:</b> {profile.experience}
+                    <br />
+                    {/* Education */}
+                    <div className="mt-2">
+                      <b>Education:</b>
+                      {profile.educationDetails &&
+                      profile.educationDetails.length > 0 ? (
+                        <ul>
+                          {profile.educationDetails.map((edu, i) => (
+                            <li key={i}>
+                              {edu.level} @ {edu.institutionName}{" "}
+                              {edu.stream && <> (Stream: {edu.stream})</>}
+                              <br />
+                              {edu.startYear} - {edu.endYear}, {edu.location}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <span> - </span>
+                      )}
+                    </div>
+                    {/* Certificates */}
+                    <div className="mt-2">
+                      <b>Certificates:</b>
+                      {profile.certificates &&
+                      profile.certificates.length > 0 ? (
+                        <ul>
+                          {profile.certificates.map((cert, i) => (
+                            <li key={i}>
+                              {cert.certificateName} ({cert.organization})<br />
+                              {cert.startDate || "?"} - {cert.endDate || "?"}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <span> - </span>
+                      )}
+                    </div>
+                    {/* Projects */}
+                    <div className="mt-2">
+                      <b>Projects:</b>
+                      {profile.projects && profile.projects.length > 0 ? (
+                        <ul>
+                          {profile.projects.map((proj, i) => (
+                            <li key={i}>
+                              <b>{proj.projectName}:</b> {proj.description}
+                              {proj.link && (
+                                <>
+                                  {" "}
+                                  <a
+                                    href={proj.link}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    [link]
+                                  </a>
+                                </>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <span> - </span>
+                      )}
+                    </div>
+                    {/* Social Links */}
+                    <div className="mt-2">
+                      <b>Social Links:</b>
+                      {profile.socialLinks && profile.socialLinks.length > 0 ? (
+                        <ul>
+                          {profile.socialLinks.map((soc, i) => (
+                            <li key={i}>
+                              {soc.platform}:{" "}
+                              <a
+                                href={soc.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                {soc.url}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <span> - </span>
+                      )}
+                    </div>
                     {profileResumeId && (
                       <button
                         className="btn btn-outline-primary mt-3"

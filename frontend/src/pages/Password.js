@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import api from "../api/api";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Password({ isChangePassword = false, userEmail }) {
   // isChangePassword: boolean to determine if this is a "change password" flow
@@ -33,20 +35,13 @@ export default function Password({ isChangePassword = false, userEmail }) {
   // Handle Forgot Password (request reset link)
   const handleForgotSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-    setSuccessMsg(null);
     setLoading(true);
 
     try {
       const res = await api.post("/auth/forgot-password", { email });
-      console.log("Forgot password response:", res.data);
-      setSuccessMsg(
-        res.data.message || "Password reset link sent to your email."
-      );
+      toast.success(res.data.message || "Password reset link sent to your email.", { position: "top-right" });
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Failed to request password reset."
-      );
+      toast.error(err.response?.data?.message || "Failed to request password reset.", { position: "top-right" });
     } finally {
       setLoading(false);
     }
@@ -59,12 +54,12 @@ export default function Password({ isChangePassword = false, userEmail }) {
     setSuccessMsg(null);
 
     if (newPassword !== confirmPassword) {
-      setError("New password and confirm password do not match.");
+      toast.error("New password and confirm password do not match.", { position: "top-right" });
       return;
     }
 
     if (!token) {
-      setError("Invalid or missing reset token.");
+      toast.error("Invalid or missing reset token.", { position: "top-right" });
       return;
     }
 
@@ -74,13 +69,13 @@ export default function Password({ isChangePassword = false, userEmail }) {
         token,
         newPassword,
       });
-      setSuccessMsg(res.data.message || "Password reset successful!");
+      toast.success(res.data.message || "Password reset successful!", { position: "top-right" });
       setStep("done");
       setTimeout(() => {
         window.location.href = "/login";
       }, 3000);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to reset password.");
+      toast.error(err.response?.data?.message || "Failed to reset password.", { position: "top-right" });
     } finally {
       setLoading(false);
     }
@@ -89,16 +84,14 @@ export default function Password({ isChangePassword = false, userEmail }) {
   // Handle Change Password for logged-in users
   const handleChangeSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-    setSuccessMsg(null);
 
     if (newPassword !== confirmPassword) {
-      setError("New password and confirm password do not match.");
+      toast.error("New password and confirm password do not match.", { position: "top-right" });
       return;
     }
 
     if (!currentPassword) {
-      setError("Current password is required.");
+      toast.error("Current password is required.", { position: "top-right" });
       return;
     }
 
@@ -109,12 +102,12 @@ export default function Password({ isChangePassword = false, userEmail }) {
         currentPassword,
         newPassword,
       });
-      setSuccessMsg(res.data.message || "Password changed successfully!");
+      toast.success(res.data.message || "Password changed successfully!", { position: "top-right" });
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to change password.");
+      toast.error(err.response?.data?.message || "Failed to change password.", { position: "top-right" });
     } finally {
       setLoading(false);
     }
@@ -148,10 +141,6 @@ export default function Password({ isChangePassword = false, userEmail }) {
               {loading ? "Processing..." : "Send Reset Link"}
             </button>
           </form>
-          {error && <div className="alert alert-danger mt-3">{error}</div>}
-          {successMsg && (
-            <div className="alert alert-success mt-3">{successMsg}</div>
-          )}
         </>
       )}
 
@@ -196,10 +185,6 @@ export default function Password({ isChangePassword = false, userEmail }) {
               {loading ? "Resetting..." : "Reset Password"}
             </button>
           </form>
-          {error && <div className="alert alert-danger mt-3">{error}</div>}
-          {successMsg && (
-            <div className="alert alert-success mt-3">{successMsg}</div>
-          )}
         </>
       )}
 
@@ -257,10 +242,6 @@ export default function Password({ isChangePassword = false, userEmail }) {
               {loading ? "Changing..." : "Change Password"}
             </button>
           </form>
-          {error && <div className="alert alert-danger mt-3">{error}</div>}
-          {successMsg && (
-            <div className="alert alert-success mt-3">{successMsg}</div>
-          )}
         </>
       )}
 

@@ -4,6 +4,8 @@ import api from "../../api/api";
 import { AuthContext } from "../../auth/AuthContext";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import { MdBookmark, MdBookmarkBorder } from "react-icons/md";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const jobTypeList = ["", "FULL_TIME", "PART_TIME", "INTERNSHIP"];
 
@@ -43,8 +45,6 @@ const JobsList = () => {
   const jobsPerPage = 10; // number of jobs per page
 
   useEffect(() => {
-    setSavedJobs(getSavedJobsFromStorage());
-
     const fetchAppliedJobs = async () => {
       if (user?.role === "JOB_SEEKER" && user.jobSeekerId) {
         try {
@@ -74,7 +74,11 @@ const JobsList = () => {
         } else {
           res = await api.get("/joblistings");
         }
-        setJobs(res.data.filter((job) => job.active));
+        setJobs(
+          res.data
+            .filter((job) => job.active)
+            .sort((a, b) => new Date(b.postedDate) - new Date(a.postedDate))
+        );
         await fetchAppliedJobs();
       } catch (err) {
         console.error("Error loading jobs", err);
@@ -109,9 +113,11 @@ const JobsList = () => {
     if (savedJobs.includes(jobId)) {
       removeJobFromStorage(jobId);
       setSavedJobs(savedJobs.filter((id) => id !== jobId));
+      toast.info("Job removed from saved list.");
     } else {
       saveJobToStorage(jobId);
       setSavedJobs([...savedJobs, jobId]);
+      toast.success("Job saved successfully!");
     }
   };
 
@@ -123,8 +129,21 @@ const JobsList = () => {
     }));
   };
 
-  const handleClearFilters = () => {
+  const handleClearFilters = async () => {
     setFilters(defaultFilters);
+    setLoading(true);
+    try {
+      const res = await api.get("/joblistings");
+      setJobs(
+        res.data
+          .filter((job) => job.active)
+          .sort((a, b) => new Date(b.postedDate) - new Date(a.postedDate))
+      );
+    } catch (err) {
+      console.error("Failed to fetch jobs", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleFilterSubmit = async (e) => {
@@ -138,7 +157,11 @@ const JobsList = () => {
         }
       });
       const res = await api.get(`/joblistings/filter?${params.toString()}`);
-      setJobs(res.data.filter((job) => job.active));
+      setJobs(
+        res.data
+          .filter((job) => job.active)
+          .sort((a, b) => new Date(b.postedDate) - new Date(a.postedDate))
+      );
     } catch (err) {
       console.error("Error filtering jobs", err);
     } finally {

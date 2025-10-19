@@ -2,7 +2,6 @@ package com.hexaware.careercrafter.controller;
 
 import com.hexaware.careercrafter.dto.JobListingDTO;
 import com.hexaware.careercrafter.service.IJobListingService;
-import com.hexaware.careercrafter.service.IJobSeekerService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,9 +34,6 @@ public class JobListingController {
     @Autowired
     private IJobListingService jobListingService;
     
-    @Autowired
-    private IJobSeekerService jobSeekerService;
-
     @PreAuthorize("hasRole('EMPLOYER')")
     @Operation(summary = "Create a new job listing")
     @PostMapping

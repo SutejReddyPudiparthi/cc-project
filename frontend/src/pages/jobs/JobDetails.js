@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../../api/api";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import { AuthContext } from "../../auth/AuthContext";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function JobDetails() {
   const { id } = useParams();
@@ -34,7 +36,7 @@ export default function JobDetails() {
       const res = await api.get(`/joblistings/${jobId}`);
       setJob(res.data);
     } catch (err) {
-      alert(
+      toast.error(
         "Job not found: " + JSON.stringify(err.response?.data || err.message)
       );
     } finally {
@@ -75,11 +77,11 @@ export default function JobDetails() {
     e.preventDefault();
 
     if (!user) {
-      return alert("Login as Job Seeker");
+      return toast.warn("Login as Job Seeker");
     }
 
     if (!user.jobSeekerId) {
-      return alert(
+      return toast.warn(
         "Profile not created. Please create your job seeker profile first."
       );
     }
@@ -99,7 +101,7 @@ export default function JobDetails() {
         const res = await api.get(`/resumes/${selectedResumeId}`);
         resumeFilePath = res.data.filePath;
       } else {
-        return alert("Please upload or select a resume");
+        return toast.warn("Please upload or select a resume");
       }
 
       console.log("Applying job, user before apply:", user);
@@ -110,10 +112,10 @@ export default function JobDetails() {
         resumeFilePath,
         applicationDate: new Date().toISOString(),
       });
-      alert("Applied successfully");
+      toast.success("Applied successfully");
       setApplied(true);
     } catch (err) {
-      alert("Apply failed: " + (err.response?.data || err.message));
+      toast.error("Apply failed: " + (err.response?.data || err.message));
     }
   }
 
@@ -123,10 +125,10 @@ export default function JobDetails() {
     if (!window.confirm("Are you sure you want to delete this job?")) return;
     try {
       await api.delete(`/joblistings/${jobId}`);
-      alert("Job deleted successfully");
+      toast.success("Job deleted successfully");
       navigate("/jobs");
     } catch (err) {
-      alert("Delete failed: " + (err.response?.data || err.message));
+      toast.error("Delete failed: " + (err.response?.data || err.message));
     }
   }
 
@@ -137,9 +139,9 @@ export default function JobDetails() {
       const updated = { ...job, title: newTitle };
       const res = await api.put(`/joblistings/${jobId}`, updated);
       setJob(res.data);
-      alert("Job updated successfully");
+      toast.success("Job updated successfully");
     } catch (err) {
-      alert("Update failed: " + (err.response?.data || err.message));
+      toast.error("Update failed: " + (err.response?.data || err.message));
     }
   }
 
@@ -277,10 +279,10 @@ export default function JobDetails() {
                 if (app) {
                   navigate(`/my-applications?select=${app.applicationId}`);
                 } else {
-                  alert("Application details not found.");
+                  toast.error("Application details not found.");
                 }
               } catch {
-                alert("Error fetching application status.");
+                toast.error("Error fetching application status.");
               }
             }}
           >

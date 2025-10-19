@@ -4,6 +4,9 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import api from "../api/api";
 import { useNavigate } from "react-router-dom";
+import { FaUserPlus } from "react-icons/fa";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import registerBg from "../assets/Register.jpg";
 
 const schema = yup.object().shape({
@@ -51,11 +54,12 @@ export default function Register() {
       setOtpSent(true);
       setEmailToVerify(email);
       setTimer(30); // start 30s countdown
-      alert("OTP sent to your email. Please check.");
+      toast.success("OTP sent to your email. Please check.", { position: "top-right" });
     } catch (err) {
       console.log("Error sending OTP:", err);
-      alert(
-        err.response?.data?.message || "Failed to send OTP. Try again later."
+      toast.error(
+        err.response?.data?.message || "Failed to send OTP. Try again later.",
+        { position: "top-right" }
       );
     } finally {
       setIsSending(false);
@@ -69,13 +73,13 @@ export default function Register() {
         otp,
       });
       if (!otpValid.data) {
-        alert("Invalid OTP. Please try again.");
+        toast.error("Invalid OTP. Please try again.", { position: "top-right" });
         return;
       }
 
       const { confirmPassword, ...submitData } = formData;
       const res = await api.post("/auth/register", submitData);
-      alert("Registration successful. Please login.");
+      toast.success("Registration successful! Please login.", { position: "top-right" });
       navigate("/login");
     } catch (err) {
       console.log("Registration error:", err);
@@ -91,7 +95,7 @@ export default function Register() {
       } else if (err.message) {
         msg = err.message;
       }
-      alert(msg);
+      toast.error(msg, { position: "top-right" });
     }
   };
 
@@ -256,12 +260,18 @@ export default function Register() {
             disabled={isSubmitting}
           >
             {isSubmitting
-              ? otpSent
-                ? "Verifying..."
-                : "Sending OTP..."
-              : otpSent
-              ? "Verify OTP & Register"
-              : "Send OTP"}
+    ? otpSent
+      ? "Verifying..."
+      : "Sending OTP..."
+    : otpSent
+    ? (
+        <>
+          <FaUserPlus className="me-2" />
+          Verify OTP & Register
+        </>
+      )
+    : "Send OTP"
+  }
           </button>
         </form>
       </div>

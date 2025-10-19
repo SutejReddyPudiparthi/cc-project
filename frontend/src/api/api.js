@@ -45,6 +45,26 @@ export const getJobRecommendations = (jobSeekerId) =>
 export const verifyUserCredentials = (data) => api.post("/users/verify", data);
 export const deleteUser = (id) => api.delete(`/users/${id}`);
 
+export const getNotifications = (userId) => {
+  if (!userId || isNaN(userId)) return Promise.resolve({ data: [] });
+  return api.get(`/notifications/user/${userId}`);
+};
+
+export const markNotificationRead = (id) =>
+  api.put(`/notifications/read/${id}`);
+
+export const markNotificationUnread = (id) =>
+  api.put(`/notifications/unread/${id}`);
+
+export const deleteNotification = (id) => api.delete(`/notifications/${id}`);
+
+export const getUnreadNotificationCount = (userId) => {
+  if (!userId || Number.isNaN(userId)) return Promise.resolve(0);
+  return api
+    .get(`/notifications/user/${userId}/unread-count`)
+    .then((res) => res.data.count);
+};
+
 export const forgotPassword = (email) =>
   api.post("/auth/forgot-password", { email });
 

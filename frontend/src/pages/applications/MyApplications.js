@@ -3,6 +3,8 @@ import api from "../../api/api";
 import { FaInfoCircle } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../../auth/AuthContext";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function MyApplications() {
   const [apps, setApps] = useState([]);
@@ -116,6 +118,9 @@ export default function MyApplications() {
           };
         });
 
+        annotatedApps.sort(
+          (a, b) => new Date(b.applicationDate) - new Date(a.applicationDate)
+        );
         setApps(annotatedApps);
       } catch (err) {
         console.error("Failed to fetch applications", err);
@@ -209,12 +214,31 @@ export default function MyApplications() {
             <strong>Applied On:</strong> {formatDate(app.applicationDate)}
           </p>
           {app.resumeId && (
-            <button
-              className="btn btn-outline-secondary me-2"
-              onClick={(e) => viewResume(app.resumeId, e)}
-            >
-              View Resume
-            </button>
+            <div style={{ textAlign: "left", marginTop: "6px" }}>
+              <button
+                onClick={() => viewResume(app.resumeId)}
+                style={{
+                  backgroundColor: "#1976d2",
+                  color: "#fff",
+                  border: "none",
+                  padding: "6px 12px",
+                  borderRadius: "6px",
+                  fontSize: "0.9rem",
+                  cursor: "pointer",
+                  fontWeight: 500,
+                  transition: "background 0.2s",
+                  display: "inline-block",
+                }}
+                onMouseEnter={(e) =>
+                  (e.target.style.backgroundColor = "#1565c0")
+                }
+                onMouseLeave={(e) =>
+                  (e.target.style.backgroundColor = "#1976d2")
+                }
+              >
+                View Resume
+              </button>
+            </div>
           )}
         </div>
       ))}

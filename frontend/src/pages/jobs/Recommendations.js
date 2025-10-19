@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import api from "../../api/api";
 import { AuthContext } from "../../auth/AuthContext";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Recommendations() {
   const { user, setUser } = useContext(AuthContext);
@@ -29,10 +31,12 @@ export default function Recommendations() {
             ...prevUser,
             jobSeekerId: res.data.jobSeekerId,
           }));
+          toast.success("Profile loaded successfully!");
           await fetchRecs(res.data.jobSeekerId);
         } catch (e) {
           setHasProfile(false);
           setError("Failed to load profile or recommendations");
+          toast.error("Failed to load profile or recommendations");
         }
       } else {
         await fetchRecs(user.jobSeekerId);
@@ -45,8 +49,10 @@ export default function Recommendations() {
       try {
         const res = await api.get(`/jobseekers/${seekerId}/recommendations`);
         setJobs(res.data || []);
+        toast.success("Recommendations loaded successfully!");
       } catch (e) {
         setError("Failed to load recommendations");
+        toast.error("Failed to load recommendations");
       } finally {
         setLoading(false);
       }

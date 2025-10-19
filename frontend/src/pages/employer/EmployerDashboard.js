@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import api from "../../api/api";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const EmployerDashboard = () => {
   const [jobs, setJobs] = useState([]);
   const [selectedJob, setSelectedJob] = useState(null);
   const [editJob, setEditJob] = useState(null);
   const [expandedJobId, setExpandedJobId] = useState(null);
+  const [employer, setEmployer] = useState(null);
   const employerId = parseInt(localStorage.getItem("employerId"));
   const location = useLocation();
   const params = new URLSearchParams(location.search);
@@ -26,8 +29,22 @@ const EmployerDashboard = () => {
   };
 
   useEffect(() => {
+    const fetchEmployer = async () => {
+      try {
+        if (employerId) {
+          const res = await api.get(`/employers/${employerId}`);
+          setEmployer(res.data);
+        }
+      } catch (err) {
+        console.error("Error fetching employer info", err);
+      }
+    };
+    fetchEmployer();
+  }, [employerId]);
+
+  useEffect(() => {
     loadDashboard();
-  });
+  }, [employerId]);
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "-";
@@ -53,8 +70,11 @@ const EmployerDashboard = () => {
       await api.delete(`/joblistings/${id}`);
       setJobs((prev) => prev.filter((job) => job.jobListingId !== id));
       setSelectedJob(null);
+      toast.success("Job deleted successfully!"); // ✅ Toast
     } catch (error) {
-      alert("Failed to delete job: " + (error.response?.data || error.message));
+      toast.error(
+        "Failed to delete job: " + (error.response?.data || error.message)
+      );
     }
   };
 
@@ -76,8 +96,11 @@ const EmployerDashboard = () => {
       );
       setEditJob(null);
       setSelectedJob(null);
+      toast.success("Job updated successfully!");
     } catch (error) {
-      alert("Failed to update: " + (error.response?.data || error.message));
+      toast.error(
+        "Failed to update: " + (error.response?.data || error.message)
+      );
     }
   };
 
@@ -97,7 +120,19 @@ const EmployerDashboard = () => {
 
   return (
     <div className="container my-4" style={{ maxWidth: "900px" }}>
-      <h2 className="mb-4">Employer Dashboard</h2>
+      {employer && (
+        <div
+          style={{
+            fontSize: "2rem",
+            color: "#1976d2",
+            fontWeight: 700,
+            marginBottom: "16px",
+          }}
+        >
+          Welcome back,{" "}
+          {employer.fullName || employer.companyName || "Employer"}!
+        </div>
+      )}
 
       <h3 className="mb-3">My Job Listings</h3>
 

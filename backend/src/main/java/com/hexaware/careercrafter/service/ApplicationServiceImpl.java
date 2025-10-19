@@ -2,6 +2,7 @@ package com.hexaware.careercrafter.service;
 
 import com.hexaware.careercrafter.dto.ApplicationDTO;
 import com.hexaware.careercrafter.dto.ApplicationDTO.ApplicationStatus;
+import com.hexaware.careercrafter.dto.NotificationDTO;
 import com.hexaware.careercrafter.entities.Application;
 import com.hexaware.careercrafter.entities.JobListing;
 import com.hexaware.careercrafter.entities.JobSeeker;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,6 +35,12 @@ public class ApplicationServiceImpl implements IApplicationService {
 
     @Autowired
     private JobSeekerRepository jobSeekerRepository;
+
+    @Autowired
+    private INotificationService notificationService;
+
+    @Autowired
+    private EmailService emailService;
 
     @Override
     @Transactional
@@ -60,6 +68,36 @@ public class ApplicationServiceImpl implements IApplicationService {
         
         Application saved = applicationRepository.save(entity);
         logger.info("Application created with ID {}", saved.getApplicationId());
+
+        // Safe notification & email sending to Employer
+        try {
+            if (jobListing.getEmployer() != null && jobListing.getEmployer().getUser() != null) {
+                Long employerUserId = Long.valueOf(jobListing.getEmployer().getUser().getUserId());
+
+                NotificationDTO notification = new NotificationDTO(
+                        employerUserId,
+                        "New Application Received",
+                        jobSeeker.getFullName() + " has applied for your job: " + jobListing.getTitle(),
+                        false,
+                        LocalDateTime.now(),
+                        Long.valueOf(jobListing.getJobListingId()),
+                        Long.valueOf(saved.getApplicationId())
+                );
+                notificationService.createNotification(notification);
+
+                emailService.sendEmail(
+                        jobListing.getEmployer().getUser().getEmail(),
+                        "New Application Received",
+                        "Hello " + jobListing.getEmployer().getFullName() +
+                                ",\n\n" + jobSeeker.getFullName() + " applied for your job '" + jobListing.getTitle() + "'. Please review it on your dashboard."
+                );
+            } else {
+                logger.warn("Cannot send notification/email: Employer or User is null for jobListingId {}", jobListing.getJobListingId());
+            }
+        } catch (Exception e) {
+            logger.error("Failed to send notification/email for jobListingId {}", jobListing.getJobListingId(), e);
+        }
+
         return mapToDto(saved);
     }
 
@@ -108,6 +146,36 @@ public class ApplicationServiceImpl implements IApplicationService {
 
         Application updated = applicationRepository.save(entity);
         logger.info("Application updated with ID {}", updated.getApplicationId());
+
+        // Safe notification & email sending to JobSeeker
+        try {
+            if (jobSeeker.getUser() != null) {
+                Long jobSeekerUserId = Long.valueOf(jobSeeker.getUser().getUserId());
+
+                NotificationDTO notification = new NotificationDTO(
+                        jobSeekerUserId,
+                        "Application Status Updated",
+                        "Your application for '" + jobListing.getTitle() + "' has been updated to " + dto.getStatus(),
+                        false,
+                        LocalDateTime.now(),
+                        Long.valueOf(jobListing.getJobListingId()),
+                        Long.valueOf(updated.getApplicationId())
+                );
+                notificationService.createNotification(notification);
+
+                emailService.sendEmail(
+                        jobSeeker.getEmail(),
+                        "Application Status Updated",
+                        "Hello " + jobSeeker.getFullName() +
+                                ",\n\nYour application for '" + jobListing.getTitle() + "' status changed to " + dto.getStatus() + "."
+                );
+            } else {
+                logger.warn("Cannot send notification/email: JobSeeker User is null for applicationId {}", dto.getApplicationId());
+            }
+        } catch (Exception e) {
+            logger.error("Failed to send notification/email for applicationId {}", dto.getApplicationId(), e);
+        }
+
         return mapToDto(updated);
     }
 

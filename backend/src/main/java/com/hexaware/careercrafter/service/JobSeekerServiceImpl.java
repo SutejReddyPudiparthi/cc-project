@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +38,12 @@ public class JobSeekerServiceImpl implements IJobSeekerService {
     @Autowired
     private JobListingRepository jobListingRepository;
 
+    @Autowired
+    private INotificationService notificationService;
+
+    @Autowired
+    private EmailService emailService;
+
     @Override
     public JobSeekerDTO createJobSeeker(JobSeekerDTO dto) {
         logger.debug("Attempting to create job seeker for userId: {}", dto.getUserId());
@@ -52,6 +59,7 @@ public class JobSeekerServiceImpl implements IJobSeekerService {
         JobSeeker jobSeeker = convertToEntity(dto, user);
         JobSeeker saved = jobSeekerRepository.save(jobSeeker);
         logger.info("Job seeker created successfully with ID: {}", saved.getJobSeekerId());
+
         return convertToDTO(saved);
     }
 
@@ -127,6 +135,7 @@ public class JobSeekerServiceImpl implements IJobSeekerService {
 
         JobSeeker saved = jobSeekerRepository.save(existingJobSeeker);
         logger.info("Job seeker with ID {} updated successfully", saved.getJobSeekerId());
+
         return convertToDTO(saved);
     }
 
@@ -156,12 +165,42 @@ public class JobSeekerServiceImpl implements IJobSeekerService {
         String skillsRegex = String.join("|", seekerSkills);
         String location = jobSeeker.getAddress() != null ? jobSeeker.getAddress().toLowerCase() : "";
         List<JobListing> matchedJobs = jobListingRepository.findRecommendedJobs(skillsRegex, location);
+
+        // Safe notification & email sending
+        matchedJobs.forEach(job -> {
+            try {
+                if (jobSeeker.getUser() != null) {
+                    Long jobSeekerUserId = Long.valueOf(jobSeeker.getUser().getUserId());
+                    NotificationDTO notification = new NotificationDTO(
+                            jobSeekerUserId,
+                            "Job Recommendation: " + job.getTitle(),
+                            "A new job matching your profile: " + job.getTitle(),
+                            false,
+                            LocalDateTime.now(),
+                            Long.valueOf(job.getJobListingId()),
+                            null
+                    );
+                    notificationService.createNotification(notification);
+
+                    emailService.sendEmail(
+                            jobSeeker.getUser().getEmail(),
+                            "New Job Recommendation",
+                            "Hello " + jobSeeker.getFullName() + ",\n\nA new job matching your profile has been posted: " + job.getTitle()
+                    );
+                } else {
+                    logger.warn("Cannot send notification/email: JobSeeker User is null for jobSeekerId {}", jobSeekerId);
+                }
+            } catch (Exception e) {
+                logger.error("Failed to send notification/email for jobSeekerId {} and jobListingId {}", jobSeekerId, job.getJobListingId(), e);
+            }
+        });
+
         return matchedJobs.stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
-    
-    
+
+    // ----- All other conversion methods remain unchanged -----
     private JobListingDTO mapToDTO(JobListing jobListing) {
         JobListingDTO dto = new JobListingDTO();
         dto.setJobListingId(jobListing.getJobListingId());
@@ -192,13 +231,11 @@ public class JobSeekerServiceImpl implements IJobSeekerService {
         jobSeeker.setEmail(dto.getEmail());
         jobSeeker.setGender(dto.getGender());
         jobSeeker.setDateOfBirth(dto.getDateOfBirth());
-
         jobSeeker.setAboutMe(dto.getAboutMe());
         jobSeeker.setEducationDetails(convertEducationDTOListToEntityList(dto.getEducationDetails(), jobSeeker));
         jobSeeker.setCertificates(convertCertificateDTOListToEntityList(dto.getCertificates(), jobSeeker));
         jobSeeker.setProjects(convertProjectDTOListToEntityList(dto.getProjects(), jobSeeker));
         jobSeeker.setSocialLinks(convertSocialLinkDTOListToEntityList(dto.getSocialLinks(), jobSeeker));
-
         return jobSeeker;
     }
 
@@ -214,13 +251,11 @@ public class JobSeekerServiceImpl implements IJobSeekerService {
         dto.setEmail(jobSeeker.getEmail());
         dto.setGender(jobSeeker.getGender());
         dto.setDateOfBirth(jobSeeker.getDateOfBirth());
-
         dto.setAboutMe(jobSeeker.getAboutMe());
         dto.setEducationDetails(convertEducationEntityListToDTOList(jobSeeker.getEducationDetails()));
         dto.setCertificates(convertCertificateEntityListToDTOList(jobSeeker.getCertificates()));
         dto.setProjects(convertProjectEntityListToDTOList(jobSeeker.getProjects()));
         dto.setSocialLinks(convertSocialLinkEntityListToDTOList(jobSeeker.getSocialLinks()));
-
         return dto;
     }
 

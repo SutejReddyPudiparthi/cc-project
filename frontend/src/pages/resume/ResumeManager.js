@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import api from "../../api/api";
 import ResumeUpload from "./ResumeUpload";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ResumeManager = () => {
   const [resumes, setResumes] = useState([]);
@@ -18,8 +20,10 @@ const ResumeManager = () => {
     } catch (err) {
       console.error("Error loading resumes", err);
       if (err.response?.status !== 404) {
-        alert("Error loading resumes: " + (err.response?.data || err.message));
-      }
+toast.error(
+          "Error loading resumes: " + (err.response?.data || err.message),
+          { position: "top-right" }
+        );      }
     } finally {
       setLoading(false);
     }
@@ -53,10 +57,12 @@ const ResumeManager = () => {
     try {
       await api.delete(`/resumes/${id}`);
       setResumes((prev) => prev.filter((r) => r.resumeId !== id));
-      alert("Resume deleted successfully");
+      toast.success("Resume deleted successfully", { position: "top-right" });
     } catch (err) {
-      alert("Delete failed: " + (err.response?.data || err.message));
-    }
+toast.error(
+        "Delete failed: " + (err.response?.data || err.message),
+        { position: "top-right" }
+      );    }
   };
 
   const handleSetPrimary = async (resumeId) => {
@@ -66,9 +72,12 @@ const ResumeManager = () => {
       await api.put("/resumes", { ...updatedResume, isPrimary: true });
       const seekerId = localStorage.getItem("jobSeekerId");
       loadResumes(seekerId);
+            toast.success("Resume set as primary", { position: "top-right" });
+
     } catch (err) {
-      alert(
-        "Failed to set primary resume: " + (err.response?.data || err.message)
+      toast.error(
+        "Failed to set primary resume: " + (err.response?.data || err.message),
+        { position: "top-right" }
       );
     }
   };
@@ -94,9 +103,12 @@ const ResumeManager = () => {
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
+            toast.success("Resume downloaded successfully", { position: "top-right" });
     } catch (err) {
-      alert("Download failed: " + (err.message || "Unknown error"));
-    }
+toast.error(
+        "Download failed: " + (err.message || "Unknown error"),
+        { position: "top-right" }
+      );    }
   };
 
   const handleView = async (id) => {
@@ -108,8 +120,9 @@ const ResumeManager = () => {
       window.open(fileURL, "_blank");
     } catch (err) {
       console.error(err);
-      alert("View failed: " + (err.message || "Unknown error"));
-    }
+toast.error("View failed: " + (err.message || "Unknown error"), {
+        position: "top-right",
+      });    }
   };
 
   if (loading) {

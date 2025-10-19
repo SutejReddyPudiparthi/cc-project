@@ -1,15 +1,31 @@
 import React, { createContext, useState, useEffect } from "react";
 import api from "../api/api";
+import { getUnreadNotificationCount } from "../api/api";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     loadUserFromStorage();
   }, []);
+
+  useEffect(() => {
+    const fetchUnread = async () => {
+      if (user?.userId) {
+        try {
+          const count = await getUnreadNotificationCount(user.userId);
+          setUnreadCount(count);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    };
+    fetchUnread();
+  }, [user]);
 
   const loadUserFromStorage = () => {
     const token = localStorage.getItem("token");
@@ -49,6 +65,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.clear();
         return;
       }
+      localStorage.setItem("userId", u.userId);
       localStorage.setItem("jobSeekerId", u.jobSeekerId || "");
       localStorage.setItem("employerId", u.employerId || "");
       localStorage.setItem("email", u.email || "");
@@ -80,7 +97,15 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, setUser, refreshUser, logout, loadingUser }}
+      value={{
+        user,
+        setUser,
+        refreshUser,
+        logout,
+        loadingUser,
+        unreadCount,
+        setUnreadCount,
+      }}
     >
       {children}
     </AuthContext.Provider>

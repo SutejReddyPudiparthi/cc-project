@@ -1,12 +1,15 @@
 package com.hexaware.careercrafter.service;
 
 import com.hexaware.careercrafter.dto.JobListingDTO;
+import com.hexaware.careercrafter.dto.NotificationDTO;
 import com.hexaware.careercrafter.entities.Employer;
 import com.hexaware.careercrafter.entities.JobListing;
+import com.hexaware.careercrafter.entities.JobSeeker;
 import com.hexaware.careercrafter.exception.InvalidRequestException;
 import com.hexaware.careercrafter.exception.ResourceNotFoundException;
 import com.hexaware.careercrafter.repository.EmployerRepository;
 import com.hexaware.careercrafter.repository.JobListingRepository;
+import com.hexaware.careercrafter.repository.JobSeekerRepository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /*
  * Implementation of IJobListingService.
@@ -33,6 +37,15 @@ public class JobListingServiceImpl implements IJobListingService {
 
     @Autowired
     private EmployerRepository employerRepository;
+
+    @Autowired
+    private JobSeekerRepository jobSeekerRepository;
+
+    @Autowired
+    private INotificationService notificationService;
+    
+    @Autowired
+    private EmailService emailService;
 
     @Override
     public JobListingDTO createJobListing(JobListingDTO dto) {
@@ -51,6 +64,36 @@ public class JobListingServiceImpl implements IJobListingService {
 
         JobListing saved = jobListingRepository.save(entity);
         logger.info("Job listing created successfully with ID: {}", saved.getJobListingId());
+
+        // ✅ Notify matching job seekers (basic demo logic)
+        List<JobSeeker> matchedSeekers = jobSeekerRepository.findAll().stream()
+            .filter(js -> true) // TODO: replace with real matching logic
+            .collect(Collectors.toList());
+
+        matchedSeekers.forEach(seeker -> {
+            try {
+                // Create a notification
+                notificationService.createNotification(new NotificationDTO(
+                    Long.valueOf(seeker.getUser().getUserId()),            // convert int → Long
+                    "New job posted: " + saved.getTitle(),
+                    "A new job '" + saved.getTitle() + "' matching your profile is posted.",
+                    false,
+                    LocalDateTime.now(),                                   // current timestamp
+                    Long.valueOf(saved.getJobListingId()),                // convert int → Long
+                    null                                                   // applicationId = null
+                ));
+
+                // Send email notification
+                emailService.sendEmail(
+                    seeker.getUser().getEmail(),
+                    "New Job Opportunity: " + saved.getTitle(),
+                    "Hello " + seeker.getFullName() + ",\n\nA new job that matches your profile has been posted. Please check your dashboard."
+                );
+            } catch (Exception ex) {
+                logger.error("Failed to notify seeker with ID {}: {}", seeker.getJobSeekerId(), ex.getMessage());
+            }
+        });
+
         return mapToDTO(saved);
     }
 
@@ -116,7 +159,7 @@ public class JobListingServiceImpl implements IJobListingService {
                 jobTypeEnum = JobListing.JobType.valueOf(jobType.toUpperCase());
             }
         } catch (IllegalArgumentException e) {
-            // unknown jobType, treat as null
+            // ignore invalid jobType
         }
 
         List<JobListing> listings = jobListingRepository.filterJobListings(
@@ -131,9 +174,6 @@ public class JobListingServiceImpl implements IJobListingService {
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
-
-
-
 
     private JobListingDTO mapToDTO(JobListing entity) {
         JobListingDTO dto = new JobListingDTO();
@@ -150,6 +190,9 @@ public class JobListingServiceImpl implements IJobListingService {
         dto.setSalary(entity.getSalary());
         dto.setPostedDate(entity.getPostedDate());
         dto.setRequiredSkills(entity.getRequiredSkills());
+        
+        dto.setTotalApplicants(entity.getApplications() != null ? entity.getApplications().size() : 0);
+
         return dto;
     }
 

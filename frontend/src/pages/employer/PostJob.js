@@ -2,6 +2,9 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import api from "../../api/api";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 export default function PostJob() {
   const {
@@ -26,12 +29,12 @@ export default function PostJob() {
     try {
       const employerId = localStorage.getItem("employerId");
       if (!employerId) {
-        alert("No employer profile found");
+        toast.warn("No employer profile found");
         return;
       }
 
       if (data.postedDate && data.postedDate > todayDate) {
-        alert("Posted date cannot be a future date.");
+        toast.warn("Posted date cannot be a future date.");
         return;
       }
 
@@ -53,10 +56,10 @@ export default function PostJob() {
       };
 
       await api.post("/joblistings", payload);
-      alert("Job posted successfully");
+      toast.success("Job posted successfully");
       navigate("/employer/dashboard");
     } catch (err) {
-      alert("Error posting job: " + (err.response?.data || err.message));
+      toast.error("Error posting job: " + (err.response?.data || err.message));
     }
   };
 
