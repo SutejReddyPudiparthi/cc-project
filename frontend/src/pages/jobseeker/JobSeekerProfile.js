@@ -100,12 +100,6 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
   const [existingProfile, setExistingProfile] = useState(null);
   const [applications, setApplications] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deleteEmail, setDeleteEmail] = useState("");
-  const [deletePassword, setDeletePassword] = useState("");
-  const [deleteError, setDeleteError] = useState("");
-  const [deleting, setDeleting] = useState(false);
-  const [showChangePassword, setShowChangePassword] = useState(false);
 
   const navigate = useNavigate();
 
@@ -184,12 +178,6 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
       setIsEditing(false);
     }
 
-    if (location.state.openChangePassword) {
-      setShowChangePassword(true);
-    }
-    if (location.state.openDeleteAccount) {
-      setShowDeleteModal(true);
-    }
     navigate(location.pathname, { replace: true, state: null });
   }, [location.state]);
 
@@ -286,34 +274,7 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
       }));
     } catch (err) {
       console.error(err);
-  toast.error(err.response?.data || "Error saving profile");
-    }
-  }
-
-  // Delete account
-  async function handleDeleteAccount(e) {
-    e.preventDefault();
-    setDeleteError("");
-    setDeleting(true);
-    try {
-      const verifyRes = await verifyUserCredentials({
-        email: deleteEmail,
-        password: deletePassword,
-      });
-      if (!verifyRes.data) {
-        setDeleteError("Email or password incorrect.");
-        setDeleting(false);
-        return;
-      }
-      await deleteUser(userId);
-      toast.success("Account deleted successfully.");
-      setUser(null);
-      localStorage.clear();
-      navigate("/");
-    } catch (err) {
-      setDeleteError(err.response?.data || "Unexpected error");
-      toast.error(err.response?.data || "Failed to delete account");
-      setDeleting(false);
+      toast.error(err.response?.data || "Error saving profile");
     }
   }
 
@@ -498,119 +459,7 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
               </button>
             </div>
             */}
-
-            {/* Modals outside card */}
-            {showChangePassword && (
-              <div
-                style={{
-                  position: "fixed",
-                  top: 0,
-                  left: 0,
-                  width: "100vw",
-                  height: "100vh",
-                  background: "rgba(0,0,0,0.6)",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  zIndex: 1050,
-                }}
-                onMouseDown={(e) => {
-                  if (e.target === e.currentTarget)
-                    setShowChangePassword(false);
-                }}
-              >
-                <div
-                  className="card shadow-lg p-4"
-                  style={{
-                    width: "100%",
-                    maxWidth: "500px",
-                    borderRadius: "12px",
-                    position: "relative",
-                  }}
-                  onMouseDown={(e) => e.stopPropagation()}
-                >
-                  <button
-                    type="button"
-                    className="btn-close"
-                    style={{ position: "absolute", top: 15, right: 15 }}
-                    onClick={() => setShowChangePassword(false)}
-                  ></button>
-                  <Password isChangePassword={true} userEmail={user?.email} />
-                </div>
-              </div>
-            )}
-
-            {showDeleteModal && (
-              <div
-                style={{
-                  position: "fixed",
-                  top: 0,
-                  left: 0,
-                  width: "100vw",
-                  height: "100vh",
-                  background: "rgba(0,0,0,0.6)",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  zIndex: 1050,
-                }}
-                onMouseDown={(e) => {
-                  if (e.target === e.currentTarget) setShowDeleteModal(false);
-                }}
-              >
-                <div
-                  className="card p-3"
-                  style={{
-                    maxWidth: "500px",
-                    width: "100%",
-                    borderRadius: "12px",
-                    position: "relative",
-                  }}
-                  onMouseDown={(e) => e.stopPropagation()}
-                >
-                  <div className="modal-content p-3">
-                    <h5>Delete Account</h5>
-                    <p>Enter your credentials to confirm:</p>
-                    <form onSubmit={handleDeleteAccount}>
-                      <input
-                        type="email"
-                        className="form-control mb-2"
-                        placeholder="Email"
-                        value={deleteEmail}
-                        onChange={(e) => setDeleteEmail(e.target.value)}
-                        required
-                      />
-                      <input
-                        type="password"
-                        className="form-control mb-2"
-                        placeholder="Password"
-                        value={deletePassword}
-                        onChange={(e) => setDeletePassword(e.target.value)}
-                        required
-                      />
-                      {deleteError && (
-                        <small className="text-danger">{deleteError}</small>
-                      )}
-                      <div className="d-flex justify-content-end mt-2">
-                        <button
-                          type="submit"
-                          className="btn btn-danger me-2"
-                          disabled={deleting}
-                        >
-                          Delete
-                        </button>
-                        <button
-                          type="button"
-                          className="btn-close"
-                          style={{ position: "absolute", top: 15, right: 15 }}
-                          onClick={() => setShowDeleteModal(false)}
-                        ></button>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              </div>
-            )}
+            
           </div>
         </div>
       </div>

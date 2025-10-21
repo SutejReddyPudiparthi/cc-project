@@ -22,121 +22,142 @@ import Footer from "./components/Footer";
 import NotificationPage from "./pages/notifications/NotificationPage";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ChangePasswordPage from "./pages/ChangePasswordPage";
+import DeleteAccountPage from "./pages/DeleteAccountPage";
 
 function App() {
   return (
     <AuthProvider>
       <Router>
         <Navbar />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route
-            path="/profile/jobseeker"
-            element={
-              <PrivateRoute roles={["JOBSEEKER"]}>
-                <JobSeekerProfile />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/profile/employer"
-            element={
-              <PrivateRoute roles={["EMPLOYER"]}>
-                <EmployerProfile />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/jobseeker/dashboard"
-            element={
-              <PrivateRoute roles={["JOBSEEKER"]}>
-                <JobSeekerDashboard />
-              </PrivateRoute>
-            }
-          />
+        <div style={{ paddingBottom: "150px" }}>
+          {/* reserve space for footer */}
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route
+              path="/profile/jobseeker"
+              element={
+                <PrivateRoute roles={["JOBSEEKER"]}>
+                  <JobSeekerProfile />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/profile/employer"
+              element={
+                <PrivateRoute roles={["EMPLOYER"]}>
+                  <EmployerProfile />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/jobseeker/dashboard"
+              element={
+                <PrivateRoute roles={["JOBSEEKER"]}>
+                  <JobSeekerDashboard />
+                </PrivateRoute>
+              }
+            />
 
-          <Route
-            path="/jobs"
-            element={
-              <PrivateRoute roles={["JOBSEEKER"]}>
-                <JobsList />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/jobs/:id"
-            element={
-              <PrivateRoute roles={["JOBSEEKER"]}>
-                <JobDetails />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/my-applications"
-            element={
-              <PrivateRoute roles={["JOBSEEKER"]}>
-                <MyApplications />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/resumes"
-            element={
-              <PrivateRoute roles={["JOBSEEKER"]}>
-                <ResumeManager />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/recommendations"
-            element={
-              <PrivateRoute roles={["JOBSEEKER"]}>
-                <Recommendations />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/employer/dashboard"
-            element={
-              <PrivateRoute roles={["EMPLOYER"]}>
-                <EmployerDashboard />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/employer/post-job"
-            element={
-              <PrivateRoute roles={["EMPLOYER"]}>
-                <PostJob />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/applications/employer"
-            element={
-              <PrivateRoute roles={["EMPLOYER"]}>
-                <EmployerApplications />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/employer/jobs"
-            element={
-              <PrivateRoute roles={["EMPLOYER"]}>
-                <EmployerDashboard />
-              </PrivateRoute>
-            }
-          />
-          <Route path="/password" element={<Password />} />
+            <Route
+              path="/jobs"
+              element={
+                <PrivateRoute roles={["JOBSEEKER"]}>
+                  <JobsList />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/jobs/:id"
+              element={
+                <PrivateRoute roles={["JOBSEEKER"]}>
+                  <JobDetails />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/my-applications"
+              element={
+                <PrivateRoute roles={["JOBSEEKER"]}>
+                  <MyApplications />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/resumes"
+              element={
+                <PrivateRoute roles={["JOBSEEKER"]}>
+                  <ResumeManager />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/recommendations"
+              element={
+                <PrivateRoute roles={["JOBSEEKER"]}>
+                  <Recommendations />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/employer/dashboard"
+              element={
+                <PrivateRoute roles={["EMPLOYER"]}>
+                  <EmployerDashboard />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/employer/post-job"
+              element={
+                <PrivateRoute roles={["EMPLOYER"]}>
+                  <PostJob />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/applications/employer"
+              element={
+                <PrivateRoute roles={["EMPLOYER"]}>
+                  <EmployerApplications />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/employer/jobs"
+              element={
+                <PrivateRoute roles={["EMPLOYER"]}>
+                  <EmployerDashboard />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/change-password"
+              element={
+                <PrivateRoute>
+                  <ChangePasswordPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/delete-account"
+              element={
+                <PrivateRoute>
+                  <DeleteAccountPage />
+                </PrivateRoute>
+              }
+            />
+            <Route path="/password" element={<Password />} />
 
-          <Route path="/reset-password" element={<Password />} />
+            <Route path="/reset-password" element={<Password />} />
 
-          <Route path="/notifications" element={<NotificationPage />} />
+            <Route path="/notifications" element={<NotificationPage />} />
 
-          <Route path="*" element={<h2>Page Not Found</h2>} />
-        </Routes>
+            <Route path="*" element={<h2>Page Not Found</h2>} />
+          </Routes>
+        </div>
         <Footer />
         {/* Toast container */}
         <ToastContainer

@@ -146,7 +146,6 @@ export default function Sidebar({ isOpen, onClose }) {
               </button>
             </>
           )}
-
           {role === "EMPLOYER" && (
             <>
               {!hasProfile ? (
@@ -180,37 +179,28 @@ export default function Sidebar({ isOpen, onClose }) {
               )}
             </>
           )}
-
           <div style={sectionStyle}>Account Settings</div>
-
           <button
-            onClick={() =>
-              handleNavigate(
-                role === "JOBSEEKER"
-                  ? "/profile/jobseeker"
-                  : "/profile/employer",
-                { openChangePassword: true }
-              )
-            }
             style={linkStyle}
+            onClick={() => {
+              onClose();
+              navigate("/change-password");
+            }}
           >
-            <MdOutlineChangeCircle /> Change Password
+            <MdOutlineChangeCircle style={{ marginRight: 8 }} />
+            Change Password
           </button>
 
           <button
-            onClick={() =>
-              handleNavigate(
-                role === "JOBSEEKER"
-                  ? "/profile/jobseeker"
-                  : "/profile/employer",
-                { openDeleteAccount: true }
-              )
-            }
-            style={{ ...linkStyle, color: "#d32f2f" }}
+            style={linkStyle}
+            onClick={() => {
+              onClose();
+              navigate("/delete-account");
+            }}
           >
-            <FaTrashAlt /> Delete Account
+            <FaTrashAlt style={{ marginRight: 8 }} />
+            Delete Account
           </button>
-
           <button onClick={handleLogout} style={logoutStyle}>
             <FaSignOutAlt /> Logout
           </button>

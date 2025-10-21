@@ -7,8 +7,6 @@ import {
   getEmployerByUserId,
   createEmployer,
   updateEmployer,
-  verifyUserCredentials,
-  deleteUser,
 } from "../../api/api";
 import { AuthContext } from "../../auth/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -25,12 +23,6 @@ export default function EmployerProfile({ onProfileUpdated }) {
   const [loading, setLoading] = useState(true);
   const [existingProfile, setExistingProfile] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showChangePassword, setShowChangePassword] = useState(false);
-  const [deleteEmail, setDeleteEmail] = useState("");
-  const [deletePassword, setDeletePassword] = useState("");
-  const [deleteError, setDeleteError] = useState("");
-  const [deleting, setDeleting] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -68,16 +60,6 @@ export default function EmployerProfile({ onProfileUpdated }) {
       setIsEditing(true);
     } else if (location.state.mode === "view") {
       setIsEditing(false);
-    }
-
-    // open change password modal
-    if (location.state.openChangePassword) {
-      setShowChangePassword(true);
-    }
-
-    // open delete account modal
-    if (location.state.openDeleteAccount) {
-      setShowDeleteModal(true);
     }
 
     // clear state so it doesn't persist on refresh or back navigation
@@ -135,31 +117,6 @@ export default function EmployerProfile({ onProfileUpdated }) {
       if (onProfileUpdated) onProfileUpdated(res.data);
     } catch (err) {
       toast.error(err.response?.data || "Error saving profile");
-    }
-  }
-
-  async function handleDeleteAccount(e) {
-    e.preventDefault();
-    setDeleteError("");
-    setDeleting(true);
-    try {
-      const verifyRes = await verifyUserCredentials({
-        email: deleteEmail,
-        password: deletePassword,
-      });
-      if (!verifyRes.data) {
-        setDeleteError("Email or password incorrect.");
-        setDeleting(false);
-        return;
-      }
-      await deleteUser(userId);
-      toast.success("Account deleted successfully.");
-      setUser(null);
-      localStorage.clear();
-      navigate("/");
-    } catch (err) {
-      setDeleteError(err.response?.data || "Unexpected error");
-      setDeleting(false);
     }
   }
 
@@ -311,120 +268,7 @@ export default function EmployerProfile({ onProfileUpdated }) {
             </p>
           </div>
         </div>
-
-        {/* Modals outside card */}
-        {showChangePassword && (
-          <div
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              width: "100vw",
-              height: "100vh",
-              background: "rgba(0,0,0,0.6)",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              zIndex: 1050,
-            }}
-            onMouseDown={(e) => {
-              if (e.target === e.currentTarget) setShowChangePassword(false);
-            }}
-          >
-            <div
-              className="card shadow-lg p-4"
-              style={{
-                width: "100%",
-                maxWidth: "500px",
-                borderRadius: "12px",
-                position: "relative",
-              }}
-              onMouseDown={(e) => e.stopPropagation()}
-            >
-              <button
-                type="button"
-                className="btn-close"
-                style={{ position: "absolute", top: 15, right: 15 }}
-                onClick={() => setShowChangePassword(false)}
-              ></button>
-              <Password isChangePassword={true} userEmail={user?.email} />
-            </div>
-          </div>
-        )}
-
-        {showDeleteModal && (
-          <div
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              width: "100vw",
-              height: "100vh",
-              background: "rgba(0,0,0,0.6)",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              zIndex: 1050,
-            }}
-            onMouseDown={(e) => {
-              if (e.target === e.currentTarget) setShowDeleteModal(false);
-            }}
-          >
-            <div
-              className="card p-3"
-              style={{
-                maxWidth: "500px",
-                width: "100%",
-                borderRadius: "12px",
-                position: "relative",
-              }}
-              onMouseDown={(e) => e.stopPropagation()}
-            >
-              <div className="modal-content p-3">
-                <h5>Delete Account</h5>
-                <p>Enter your credentials to confirm:</p>
-                <form onSubmit={handleDeleteAccount}>
-                  <input
-                    type="email"
-                    className="form-control mb-2"
-                    placeholder="Email"
-                    value={deleteEmail}
-                    onChange={(e) => setDeleteEmail(e.target.value)}
-                    required
-                  />
-                  <input
-                    type="password"
-                    className="form-control mb-2"
-                    placeholder="Password"
-                    value={deletePassword}
-                    onChange={(e) => setDeletePassword(e.target.value)}
-                    required
-                  />
-                  {deleteError && (
-                    <small className="text-danger">{deleteError}</small>
-                  )}
-                  <div className="d-flex justify-content-end mt-2">
-                    <button
-                      type="submit"
-                      className="btn btn-danger me-2"
-                      disabled={deleting}
-                    >
-                      Delete
-                    </button>
-                    <button
-                      type="button"
-                      className="btn-close"
-                      style={{ position: "absolute", top: 15, right: 15 }}
-                      onClick={() => setShowDeleteModal(false)}
-                    ></button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     );
-
   return null;
 }

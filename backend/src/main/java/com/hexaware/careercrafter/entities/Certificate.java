@@ -31,7 +31,7 @@ public class Certificate {
     }
 
 	public Certificate(int id, JobSeeker jobSeeker, String certificateName, String organization, YearMonth startDate,
-			YearMonth endDate, String filePath) {
+			YearMonth endDate) {
 		super();
 		this.id = id;
 		this.jobSeeker = jobSeeker;

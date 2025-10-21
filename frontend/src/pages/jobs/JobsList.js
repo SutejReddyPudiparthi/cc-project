@@ -461,6 +461,20 @@ const JobsList = () => {
                   "0 2px 18px rgba(27,55,67,.06)")
               }
             >
+              {/* Applied count near role */}
+              <div
+                style={{
+                  position: "absolute",
+                  top: 18,
+                  right: 58 + 24 + 8 /* bookmark (24px) + gap (8px) */,
+                  color: "#000000ff",
+                  fontSize: "0.9rem",
+                  fontWeight: 400,
+                }}
+              >
+                Total Applied: {job.totalApplicants}
+              </div>
+
               <button
                 onClick={() => handleSave(job.jobListingId)}
                 style={{

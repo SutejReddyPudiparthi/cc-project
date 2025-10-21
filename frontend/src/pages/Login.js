@@ -87,7 +87,6 @@ export default function Login() {
     } catch (err) {
       const msg = err.response?.data || "Invalid credentials or server error.";
       setError(msg);
-      toast.error(msg, { position: "top-right" });
     }
   }
 

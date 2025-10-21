@@ -262,14 +262,16 @@ export default function EmployerApplications() {
               <h5 style={{ color: "#1976d2" }}>
                 Application #{app.applicationId}
               </h5>
-              <p style={{ fontSize: "1.1rem" }}>
+              <p style={{ fontSize: "1.1rem", marginBottom: "4px" }}>
                 <b>Job Title:</b> {app.jobTitle || "-"}{" "}
-                <span style={{ marginLeft: "40px", fontSize: "1.1rem" }}>
+                <span style={{ marginLeft: "30px", fontSize: "1.1rem" }}>
                   <b>Applicant:</b> {app.applicantName || "-"}
                 </span>
               </p>
               <p>
-                <b>Status:</b> {app.status}
+                <p style={{ marginTop: "0", marginBottom: "0.25rem" }}>
+                  <b>Status:</b> {app.status}
+                </p>
               </p>
             </div>
 
