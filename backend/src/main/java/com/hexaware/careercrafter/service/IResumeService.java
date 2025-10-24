@@ -15,4 +15,5 @@ public interface IResumeService {
     List<ResumeDTO> getResumesByJobSeekerId(int jobSeekerId);
     ResumeDTO updateResume(ResumeDTO resumeDTO);
     void deleteResume(int id);
+    
 }

@@ -17,7 +17,6 @@ export default function JobDetails() {
   const [resumes, setResumes] = useState([]);
   const [selectedResumeId, setSelectedResumeId] = useState("");
   const { user } = useContext(AuthContext);
-
   const jobId = Number(id);
 
   const formatDate = (dateStr) => {
@@ -75,20 +74,16 @@ export default function JobDetails() {
 
   async function uploadResumeAndApply(e) {
     e.preventDefault();
-
     if (!user) {
       return toast.warn("Login as Job Seeker");
     }
-
     if (!user.jobSeekerId) {
       return toast.warn(
         "Profile not created. Please create your job seeker profile first."
       );
     }
-
     try {
       let resumeFilePath = "";
-
       if (file) {
         const fd = new FormData();
         fd.append("jobSeekerId", user.jobSeekerId);
@@ -103,7 +98,6 @@ export default function JobDetails() {
       } else {
         return toast.warn("Please upload or select a resume");
       }
-
       console.log("Applying job, user before apply:", user);
       await api.post("/applications", {
         jobListingId: jobId,
@@ -146,11 +140,9 @@ export default function JobDetails() {
   }
 
   if (!job) return <div>Job not found</div>;
-
   const isJobSeeker = user.role === "JOBSEEKER" && !!user.jobSeekerId;
   const isEmployer =
     user.role === "EMPLOYER" && user.employerId === job.employerId;
-
   return (
     <div className="container my-4" style={{ maxWidth: "700px" }}>
       {isJobSeeker && (
@@ -199,7 +191,7 @@ export default function JobDetails() {
         <p>
           <b>Posted Date:</b> {formatDate(job.postedDate)}
         </p>
-
+        
         {isEmployer && (
           <div className="mb-3">
             <button className="btn btn-warning me-2" onClick={handleUpdate}>

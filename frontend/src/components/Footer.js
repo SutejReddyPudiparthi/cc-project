@@ -9,9 +9,8 @@ const Footer = () => {
       const scrollable =
         document.documentElement.scrollHeight > window.innerHeight;
       if (!scrollable) {
-        setShow(true); // Always show if the page isn't scrollable
+        setShow(true);
       } else {
-        // Only show when scrolled near bottom (adjust 50 for tolerance)
         setShow(
           window.scrollY + window.innerHeight >=
             document.documentElement.scrollHeight - 50

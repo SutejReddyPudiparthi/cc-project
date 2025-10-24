@@ -40,9 +40,8 @@ const JobsList = () => {
   const query = params.get("query")?.trim().toLowerCase() || "";
   const [loading, setLoading] = useState(true);
 
-  // ✅ Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const jobsPerPage = 10; // number of jobs per page
+  const jobsPerPage = 10;
 
   useEffect(() => {
     const fetchAppliedJobs = async () => {
@@ -86,7 +85,6 @@ const JobsList = () => {
         setLoading(false);
       }
     };
-
     loadJobs();
   }, [user, sortMode]);
 
@@ -212,7 +210,6 @@ const JobsList = () => {
 
   const totalPages = Math.ceil(totalJobs / jobsPerPage);
 
-  // ✅ Updated message logic for "Recommended" mode
   if (filteredJobs.length === 0) {
     const message =
       sortMode === "recommended"
@@ -235,7 +232,6 @@ const JobsList = () => {
   return (
     <div className="container my-4" style={{ maxWidth: "1200px" }}>
       <div style={{ display: "flex", alignItems: "flex-start", gap: "30px" }}>
-        {/* Sidebar Filters */}
         <aside
           style={{
             minWidth: 320,
@@ -405,7 +401,6 @@ const JobsList = () => {
           </form>
         </aside>
 
-        {/* Main Job Listings */}
         <main style={{ flexGrow: 1 }}>
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h2 className="mb-0" style={{ fontWeight: 600, fontSize: 22 }}>
@@ -435,7 +430,6 @@ const JobsList = () => {
             </div>
           </div>
 
-          {/* ✅ Pagination info text */}
           <div className="mb-3 text-muted" style={{ fontSize: 15 }}>
             Showing {start}–{end} of {totalJobs} jobs
           </div>
@@ -461,12 +455,11 @@ const JobsList = () => {
                   "0 2px 18px rgba(27,55,67,.06)")
               }
             >
-              {/* Applied count near role */}
               <div
                 style={{
                   position: "absolute",
                   top: 18,
-                  right: 58 + 24 + 8 /* bookmark (24px) + gap (8px) */,
+                  right: 58 + 24 + 8,
                   color: "#000000ff",
                   fontSize: "0.9rem",
                   fontWeight: 400,
@@ -570,7 +563,6 @@ const JobsList = () => {
             </div>
           ))}
 
-          {/* ✅ Pagination Controls */}
           {totalPages > 1 && (
             <div
               className="d-flex justify-content-center mt-4"

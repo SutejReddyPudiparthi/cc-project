@@ -17,8 +17,11 @@ const schema = yup.object().shape({
     .required("Email is required"),
   password: yup
     .string()
-    .min(8, "Minimum 8 characters")
-    .required("Password is required"),
+    .required("Password is required")
+    .min(8, "Password must be at least 8 characters")
+    .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .matches(/[a-z]/, "Password must contain at least one lowercase letter")
+    .matches(/[0-9]/, "Password must contain at least one number"),
   confirmPassword: yup
     .string()
     .oneOf([yup.ref("password"), null], "Passwords must match")
@@ -34,27 +37,31 @@ export default function Register() {
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState("");
   const [emailToVerify, setEmailToVerify] = useState("");
-  const [timer, setTimer] = useState(0); // 30s countdown
+  const [timer, setTimer] = useState(0);
   const [isSending, setIsSending] = useState(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    watch,
     getValues,
   } = useForm({
     resolver: yupResolver(schema),
+    mode: "onChange",
   });
 
-  const sendOtp = async () => {
-    const email = getValues("email");
+  const sendOtp = async (formData) => {
+    const { email } = formData;
     try {
       setIsSending(true);
       await api.post("/auth/send-otp", { email });
       setOtpSent(true);
       setEmailToVerify(email);
-      setTimer(30); // start 30s countdown
-      toast.success("OTP sent to your email. Please check.", { position: "top-right" });
+      setTimer(30);
+      toast.success("OTP sent to your email. Please check.", {
+        position: "top-right",
+      });
     } catch (err) {
       console.log("Error sending OTP:", err);
       toast.error(
@@ -73,13 +80,17 @@ export default function Register() {
         otp,
       });
       if (!otpValid.data) {
-        toast.error("Invalid OTP. Please try again.", { position: "top-right" });
+        toast.error("Invalid OTP. Please try again.", {
+          position: "top-right",
+        });
         return;
       }
 
       const { confirmPassword, ...submitData } = formData;
       const res = await api.post("/auth/register", submitData);
-      toast.success("Registration successful! Please login.", { position: "top-right" });
+      toast.success("Registration successful! Please login.", {
+        position: "top-right",
+      });
       navigate("/login");
     } catch (err) {
       console.log("Registration error:", err);
@@ -99,7 +110,6 @@ export default function Register() {
     }
   };
 
-  // Timer countdown effect
   useEffect(() => {
     if (timer > 0) {
       const interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
@@ -135,7 +145,13 @@ export default function Register() {
       >
         <h3 className="mb-4">Register</h3>
         <form
-          onSubmit={handleSubmit(otpSent ? verifyOtpAndRegister : sendOtp)}
+          onSubmit={
+            otpSent
+              ? handleSubmit(verifyOtpAndRegister)
+              : handleSubmit(async (formData) => {
+                  await sendOtp(formData);
+                })
+          }
           noValidate
         >
           {!otpSent && (
@@ -259,19 +275,20 @@ export default function Register() {
             className="btn btn-success w-100"
             disabled={isSubmitting}
           >
-            {isSubmitting
-    ? otpSent
-      ? "Verifying..."
-      : "Sending OTP..."
-    : otpSent
-    ? (
-        <>
-          <FaUserPlus className="me-2" />
-          Verify OTP & Register
-        </>
-      )
-    : "Send OTP"
-  }
+            {isSubmitting ? (
+              otpSent ? (
+                "Verifying..."
+              ) : (
+                "Sending OTP..."
+              )
+            ) : otpSent ? (
+              <>
+                <FaUserPlus className="me-2" />
+                Verify OTP & Register
+              </>
+            ) : (
+              "Send OTP"
+            )}
           </button>
         </form>
       </div>

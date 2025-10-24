@@ -166,7 +166,6 @@ public class JobSeekerServiceImpl implements IJobSeekerService {
         String location = jobSeeker.getAddress() != null ? jobSeeker.getAddress().toLowerCase() : "";
         List<JobListing> matchedJobs = jobListingRepository.findRecommendedJobs(skillsRegex, location);
 
-        // Safe notification & email sending
         matchedJobs.forEach(job -> {
             try {
                 if (jobSeeker.getUser() != null) {
@@ -200,7 +199,6 @@ public class JobSeekerServiceImpl implements IJobSeekerService {
                 .collect(Collectors.toList());
     }
 
-    // ----- All other conversion methods remain unchanged -----
     private JobListingDTO mapToDTO(JobListing jobListing) {
         JobListingDTO dto = new JobListingDTO();
         dto.setJobListingId(jobListing.getJobListingId());

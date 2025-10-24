@@ -16,5 +16,4 @@ public interface EmployerRepository extends JpaRepository<Employer, Integer> {
 	
 	List<Employer> findByUserUserId(int userId);
 	
-
 }

@@ -65,25 +65,22 @@ public class JobListingServiceImpl implements IJobListingService {
         JobListing saved = jobListingRepository.save(entity);
         logger.info("Job listing created successfully with ID: {}", saved.getJobListingId());
 
-        // ✅ Notify matching job seekers (basic demo logic)
         List<JobSeeker> matchedSeekers = jobSeekerRepository.findAll().stream()
-            .filter(js -> true) // TODO: replace with real matching logic
+            .filter(js -> true)
             .collect(Collectors.toList());
 
         matchedSeekers.forEach(seeker -> {
             try {
-                // Create a notification
                 notificationService.createNotification(new NotificationDTO(
-                    Long.valueOf(seeker.getUser().getUserId()),            // convert int → Long
+                    Long.valueOf(seeker.getUser().getUserId()),
                     "New job posted: " + saved.getTitle(),
                     "A new job '" + saved.getTitle() + "' matching your profile is posted.",
                     false,
-                    LocalDateTime.now(),                                   // current timestamp
-                    Long.valueOf(saved.getJobListingId()),                // convert int → Long
-                    null                                                   // applicationId = null
+                    LocalDateTime.now(),
+                    Long.valueOf(saved.getJobListingId()),
+                    null
                 ));
 
-                // Send email notification
                 emailService.sendEmail(
                     seeker.getUser().getEmail(),
                     "New Job Opportunity: " + saved.getTitle(),

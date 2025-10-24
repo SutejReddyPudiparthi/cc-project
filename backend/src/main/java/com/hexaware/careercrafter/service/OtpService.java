@@ -21,15 +21,13 @@ public class OtpService {
 
     private final Map<String, OtpEntry> otpStore = new ConcurrentHashMap<>();
 
-    // Generate OTP
     public String generateOtp(String email) {
-        String otp = String.valueOf((int)(Math.random() * 900000) + 100000); // 6-digit
+        String otp = String.valueOf((int)(Math.random() * 900000) + 100000);
         OtpEntry entry = new OtpEntry(otp, LocalDateTime.now().plusMinutes(5));
         otpStore.put(email, entry);
         return otp;
     }
 
-    // Verify OTP
     public boolean verifyOtp(String email, String otp) {
         OtpEntry entry = otpStore.get(email);
         if (entry == null) return false;

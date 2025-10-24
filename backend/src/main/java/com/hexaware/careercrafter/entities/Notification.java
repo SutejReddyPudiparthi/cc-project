@@ -5,7 +5,6 @@ import lombok.*;
 import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
 
-
 @Entity
 @Table(name = "notifications")
 @Getter
@@ -19,7 +18,7 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long notificationId;
 
-    private Long userId;   // Refers to the user (JobSeeker or Employer)
+    private Long userId;
 
     private String title;
 
@@ -29,11 +28,9 @@ public class Notification {
     @Column(name = "is_read")
     private boolean isRead;
 
-
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    // Optional foreign references
-    private Long jobListingId;   // For job-related notifications
-    private Long applicationId;  // For application-related notifications
+    private Long jobListingId;
+    private Long applicationId;
 }

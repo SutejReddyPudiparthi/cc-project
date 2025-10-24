@@ -52,8 +52,6 @@ export default function EmployerProfile({ onProfileUpdated }) {
 
   useEffect(() => {
     if (!location.state) return;
-
-    // open edit/create mode
     if (location.state.mode === "edit") {
       setIsEditing(true);
     } else if (location.state.mode === "create") {
@@ -62,11 +60,9 @@ export default function EmployerProfile({ onProfileUpdated }) {
       setIsEditing(false);
     }
 
-    // clear state so it doesn't persist on refresh or back navigation
     navigate(location.pathname, { replace: true, state: null });
   }, [location.state]);
 
-  // Load existing profile
   useEffect(() => {
     const loadProfile = async () => {
       try {

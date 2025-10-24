@@ -17,7 +17,6 @@ public class EmailService {
     @Autowired
     private UserRepository userRepository;
 
-    // ✅ Existing methods (keep them)
     public void sendOtpEmail(String to, String subject, String description) {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(to);
@@ -45,8 +44,6 @@ public class EmailService {
         }
     }
 
-
-    // ✅ Utility method for plain email sending
     public void sendEmail(String toEmail, String subject, String body) {
         try {
             SimpleMailMessage mailMessage = new SimpleMailMessage();

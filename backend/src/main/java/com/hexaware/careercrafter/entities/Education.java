@@ -15,10 +15,10 @@ public class Education {
     private JobSeeker jobSeeker;
 
     @Column(nullable = false)
-    private String level;  // e.g., 10th, Intermediate, Degree
+    private String level;
 
     @Column(nullable = false)
-    private String institutionName; // school or college name
+    private String institutionName;
 
     private String stream;
 

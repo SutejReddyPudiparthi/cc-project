@@ -14,20 +14,17 @@ const NotificationPage = () => {
   const userId = user?.userId;
   const [notifications, setNotifications] = useState([]);
 
-  // Fetch notifications (always fresh)
   const fetchNotifications = useCallback(async () => {
     if (!userId) return;
     try {
       const res = await getNotifications(userId);
       const data = res.data || [];
 
-      // Remove duplicates based on notificationId
       const uniqueData = Array.from(
         new Map(data.map((item) => [item.notificationId, item])).values()
       );
       setNotifications(uniqueData);
 
-      // Update unread count globally
       const unread = uniqueData.filter((n) => !n.isRead).length;
       setUnreadCount(unread);
     } catch (err) {
@@ -48,7 +45,6 @@ const NotificationPage = () => {
         prev.map((n) => (n.notificationId === id ? { ...n, isRead: true } : n))
       );
 
-      // Update unread count globally
       setUnreadCount((prev) => (prev > 0 ? prev - 1 : 0));
       toast.success("Notification marked as read");
     } catch (err) {

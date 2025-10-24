@@ -16,6 +16,4 @@ public interface PasswordResetTokenRepository extends JpaRepository<PasswordRese
     @Query("DELETE FROM PasswordResetToken t WHERE t.expiryDate < CURRENT_TIMESTAMP")
     void deleteAllExpiredSince();
 
-
-
 }

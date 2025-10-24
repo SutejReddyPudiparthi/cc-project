@@ -24,7 +24,6 @@ export default function EmployerApplications() {
   const [profileError, setProfileError] = useState(null);
   const [profileResumeId, setProfileResumeId] = useState(null);
 
-  // 🔹 Filter states
   const [filterJobId, setFilterJobId] = useState("");
   const [filterJobTitle, setFilterJobTitle] = useState("");
 
@@ -172,7 +171,6 @@ export default function EmployerApplications() {
     setProfileResumeId(null);
   };
 
-  // 🔹 Filter applications
   useEffect(() => {
     let filtered = [...allApplications];
     if (filterJobId) {
@@ -198,7 +196,6 @@ export default function EmployerApplications() {
     <div className="container my-4" style={{ maxWidth: "900px" }}>
       <h3>Applications To Your Jobs</h3>
 
-      {/* 🔹 Filter Card */}
       <div className="card shadow-sm p-3 mb-4" style={{ borderRadius: 10 }}>
         <h6 className="fw-bold mb-3">Filter Applications</h6>
         <div className="d-flex flex-wrap gap-3 align-items-center">
@@ -362,9 +359,9 @@ export default function EmployerApplications() {
                 className="modal-body"
                 style={{
                   overflowY: "auto",
-                  borderRadius: 12, // Must match modal's border radius
+                  borderRadius: 12,
                   paddingRight: 12,
-                  maxHeight: "65vh", // a bit less than content, to keep header visible when scrolled
+                  maxHeight: "65vh",
                 }}
               >
                 {profileLoading && <div>Loading...</div>}
@@ -391,7 +388,6 @@ export default function EmployerApplications() {
                     <br />
                     <b>Experience:</b> {profile.experience}
                     <br />
-                    {/* Education */}
                     <div className="mt-2">
                       <b>Education:</b>
                       {profile.educationDetails &&
@@ -410,7 +406,6 @@ export default function EmployerApplications() {
                         <span> - </span>
                       )}
                     </div>
-                    {/* Certificates */}
                     <div className="mt-2">
                       <b>Certificates:</b>
                       {profile.certificates &&
@@ -427,7 +422,6 @@ export default function EmployerApplications() {
                         <span> - </span>
                       )}
                     </div>
-                    {/* Projects */}
                     <div className="mt-2">
                       <b>Projects:</b>
                       {profile.projects && profile.projects.length > 0 ? (
@@ -454,7 +448,6 @@ export default function EmployerApplications() {
                         <span> - </span>
                       )}
                     </div>
-                    {/* Social Links */}
                     <div className="mt-2">
                       <b>Social Links:</b>
                       {profile.socialLinks && profile.socialLinks.length > 0 ? (

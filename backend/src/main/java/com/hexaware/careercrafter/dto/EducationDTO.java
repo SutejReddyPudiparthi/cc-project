@@ -15,7 +15,7 @@ public class EducationDTO {
     private int id;
 
     @NotBlank(message = "Level is required")
-    private String level;  // 10th, Intermediate, Degree
+    private String level;
 
     @NotBlank(message = "Institution name is required")
     private String institutionName;

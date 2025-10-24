@@ -7,5 +7,7 @@ import java.util.List;
 
 @Repository
 public interface SocialLinkRepository extends JpaRepository<SocialLink, Integer> {
+	
     List<SocialLink> findByJobSeeker_JobSeekerId(int jobSeekerId);
+    
 }

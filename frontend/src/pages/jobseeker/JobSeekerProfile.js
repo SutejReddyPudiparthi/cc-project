@@ -166,7 +166,6 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
     remove: removeSocial,
   } = useFieldArray({ control, name: "socialLinks" });
 
-  // Handle sidebar-driven mode and modals
   useEffect(() => {
     if (!location.state) return;
 
@@ -181,7 +180,6 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
     navigate(location.pathname, { replace: true, state: null });
   }, [location.state]);
 
-  // Load JobSeeker profile
   useEffect(() => {
     const loadProfile = async () => {
       try {
@@ -218,7 +216,6 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
     loadProfile();
   }, [userId, storedId, setValue, getValues]);
 
-  // Fetch applications
   useEffect(() => {
     const fetchApplications = async () => {
       const jobSeekerId = existingProfile?.jobSeekerId;
@@ -235,7 +232,6 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
     fetchApplications();
   }, [existingProfile]);
 
-  // Form submit
   async function onSubmit(data) {
     try {
       if (data.dateOfBirth) {
@@ -289,7 +285,6 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
       </div>
     );
 
-  // View mode
   if (!isEditing)
     return (
       <div
@@ -436,36 +431,11 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
                 ))}
               </ul>
             </div>
-
-            {/*
-            <div className="mt-4">
-              <button
-                className="btn btn-primary me-2"
-                onClick={() => setIsEditing(true)}
-              >
-                {existingProfile ? "Edit Profile" : "Create Profile"}
-              </button>
-              <button
-                className="btn btn-warning me-2"
-                onClick={() => setShowChangePassword(true)}
-              >
-                Change Password
-              </button>
-              <button
-                className="btn btn-danger"
-                onClick={() => setShowDeleteModal(true)}
-              >
-                Delete Account
-              </button>
-            </div>
-            */}
-            
           </div>
         </div>
       </div>
     );
 
-  // Edit/Create mode
   return (
     <div className="container d-flex justify-content-center align-items-center my-5">
       <div className="card shadow p-4" style={{ maxWidth: 600, width: "100%" }}>
@@ -473,7 +443,6 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
           {existingProfile ? "Edit Profile" : "Create Profile"}
         </h3>
         <form onSubmit={handleSubmit(onSubmit)} noValidate>
-          {/* Main profile fields */}
           <div className="mb-3">
             <label className="form-label">Full Name</label>
             <input className="form-control" {...register("fullName")} />
@@ -531,7 +500,6 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
             />
             <small className="text-danger">{errors.experience?.message}</small>
           </div>
-          {/* About Me */}
           <div className="mb-3">
             <label htmlFor="aboutMe" className="form-label">
               About Me
@@ -544,7 +512,6 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
             />
             <small className="text-danger">{errors.aboutMe?.message}</small>
           </div>
-          {/* Education Section */}
           <div className="mb-3">
             <label className="form-label">Education</label>
             {educationFields.map((field, idx) => (
@@ -628,7 +595,6 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
                 : ""}
             </small>
           </div>
-          {/* Certificates Section */}
           <div className="mb-3">
             <label className="form-label">Certificates</label>
             {certificateFields.map((field, idx) => (
@@ -685,7 +651,6 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
               Add Certificate
             </button>
           </div>
-          {/* Projects Section */}
           <div className="mb-3">
             <label className="form-label">Projects</label>
             {projectFields.map((field, idx) => (
@@ -734,7 +699,6 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
               Add Project
             </button>
           </div>
-          {/* Social Links Section */}
           <div className="mb-3">
             <label className="form-label">Social Links</label>
             {socialFields.map((field, idx) => (
@@ -773,7 +737,6 @@ export default function JobSeekerProfile({ onProfileUpdated }) {
               Add Social Link
             </button>
           </div>
-          {/* Submit & Cancel */}
           <button
             type="submit"
             className="btn btn-success"

@@ -12,7 +12,7 @@ import {
   FaTasks,
 } from "react-icons/fa";
 import backgroundImg from "../assets/Home.jpg";
-import { AuthContext } from "../auth/AuthContext"; // ADD THIS LINE
+import { AuthContext } from "../auth/AuthContext";
 
 const ICON_STYLE = { fontSize: "2.5rem", color: "#1976d2" };
 const TEXT_STYLE = {
@@ -40,7 +40,7 @@ const employerSteps = [
 export default function Home() {
   const [infoVisible, setInfoVisible] = useState(false);
   const infoCardRef = useRef(null);
-  const { user } = useContext(AuthContext); // ADD THIS LINE
+  const { user } = useContext(AuthContext);
 
   const toggleInfoCard = () => {
     setInfoVisible(!infoVisible);
@@ -62,7 +62,6 @@ export default function Home() {
     };
   }, [infoVisible]);
 
-  // Helper checks
   const isJobSeeker = user && user.role === "JOBSEEKER";
   const isEmployer = user && user.role === "EMPLOYER";
   const showBoth = !user || (!isJobSeeker && !isEmployer);
@@ -83,7 +82,6 @@ export default function Home() {
         zIndex: 1,
       }}
     >
-      {/* === Combined Title Card === */}
       <div
         style={{
           background: "rgba(255,255,255,0.96)",
@@ -118,16 +116,13 @@ export default function Home() {
           Find the best jobs or hire top talent with ease.
         </p>
       </div>
-      {/* === End Combined Card === */}
-
-      {/* === Browse Jobs Button (Only for Job Seekers) === */}
       {isJobSeeker && (
         <Link
           to="/jobs"
           className="btn btn-primary btn-lg mb-5 px-4 py-2 rounded-pill shadow-sm"
           style={{ fontWeight: "500", letterSpacing: "0.02em" }}
         >
-        <FaSearch/>  Browse Jobs
+          <FaSearch /> Browse Jobs
         </Link>
       )}
 
@@ -140,7 +135,6 @@ export default function Home() {
           margin: "0 auto 2.5rem",
         }}
       >
-        {/* JOB SEEKER STRIP: Only show to jobseeker or guest */}
         {(isJobSeeker || showBoth) && (
           <div
             className="card shadow-sm p-3 d-flex flex-column align-items-center justify-content-center text-center"
@@ -167,7 +161,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* EMPLOYER STRIP: Only show to employer or guest */}
         {(isEmployer || showBoth) && (
           <div
             className="card shadow-sm p-3 d-flex flex-column align-items-center justify-content-center text-center"
@@ -195,7 +188,6 @@ export default function Home() {
         )}
       </div>
 
-      {/* Combined Card Without Badges */}
       <section
         style={{
           width: "100%",
@@ -218,14 +210,13 @@ export default function Home() {
           How CareerCrafter Works
         </h2>
 
-        {/* Job Seekers row */}
         {(isJobSeeker || showBoth) && (
           <div
             style={{
               display: "flex",
               justifyContent: "center",
               alignItems: "flex-start",
-              gap: "4rem", // evenly spaced
+              gap: "4rem",
               marginBottom: "3rem",
               flexWrap: "wrap",
             }}
@@ -257,7 +248,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* Employers row */}
         {(isEmployer || showBoth) && (
           <div
             style={{
@@ -351,11 +341,13 @@ export default function Home() {
             What is CareerCrafter?
           </h3>
           <p>
-            CareerCrafter is your one-stop platform to find the best job
-            opportunities. If you are a job seeker looking for personalized
-            recommendations or an employer seeking skilled talent, CareerCrafter
-            helps in hiring process with an easy-to-use interface, resume
-            management. Empower your job search or recruitment journey today!
+            CareerCrafter, a job portal which is your one-stop platform to find
+            the best job opportunities and to hire the best talent. If you are a
+            job seeker looking for best jobs with personalized recommendations
+            or an employer seeking for a skilled and talented person,
+            CareerCrafter helps in hiring process with an easy-to-use interface,
+            resume management and Application tracking. Empower your job search
+            or recruitment journey today!
           </p>
         </div>
       )}

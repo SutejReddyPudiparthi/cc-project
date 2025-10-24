@@ -23,7 +23,6 @@ public class NotificationDTO {
     private Long jobListingId;
     private Long applicationId;
 
-    // Explicit constructor matching usage
     public NotificationDTO(Long userId, String title, String message, boolean isRead, LocalDateTime createdAt, Long jobListingId, Long applicationId) {
         this.userId = userId;
         this.title = title;

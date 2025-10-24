@@ -12,7 +12,6 @@ import java.util.List;
  * Contains basic user details
  */
 
-
 @Entity
 @Table(name = "users")
 public class User {

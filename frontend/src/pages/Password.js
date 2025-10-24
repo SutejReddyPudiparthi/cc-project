@@ -5,9 +5,6 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function Password({ isChangePassword = false, userEmail }) {
-  // isChangePassword: boolean to determine if this is a "change password" flow
-  // userEmail: required when isChangePassword=true, pass the logged-in user's email
-
   const [step, setStep] = useState(isChangePassword ? "change" : "request");
   const [email, setEmail] = useState(userEmail || "");
   const [token, setToken] = useState("");
@@ -20,7 +17,6 @@ export default function Password({ isChangePassword = false, userEmail }) {
 
   const location = useLocation();
 
-  // Extract token from URL when reset link is opened
   useEffect(() => {
     if (!isChangePassword) {
       const params = new URLSearchParams(location.search);
@@ -32,29 +28,35 @@ export default function Password({ isChangePassword = false, userEmail }) {
     }
   }, [location.search, isChangePassword]);
 
-  // Handle Forgot Password (request reset link)
   const handleForgotSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
       const res = await api.post("/auth/forgot-password", { email });
-      toast.success(res.data.message || "Password reset link sent to your email.", { position: "top-right" });
+      toast.success(
+        res.data.message || "Password reset link sent to your email.",
+        { position: "top-right" }
+      );
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to request password reset.", { position: "top-right" });
+      toast.error(
+        err.response?.data?.message || "Failed to request password reset.",
+        { position: "top-right" }
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle Reset Password using token
   const handleResetSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     setSuccessMsg(null);
 
     if (newPassword !== confirmPassword) {
-      toast.error("New password and confirm password do not match.", { position: "top-right" });
+      toast.error("New password and confirm password do not match.", {
+        position: "top-right",
+      });
       return;
     }
 
@@ -69,24 +71,29 @@ export default function Password({ isChangePassword = false, userEmail }) {
         token,
         newPassword,
       });
-      toast.success(res.data.message || "Password reset successful!", { position: "top-right" });
+      toast.success(res.data.message || "Password reset successful!", {
+        position: "top-right",
+      });
       setStep("done");
       setTimeout(() => {
         window.location.href = "/login";
       }, 3000);
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to reset password.", { position: "top-right" });
+      toast.error(err.response?.data?.message || "Failed to reset password.", {
+        position: "top-right",
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle Change Password for logged-in users
   const handleChangeSubmit = async (e) => {
     e.preventDefault();
 
     if (newPassword !== confirmPassword) {
-      toast.error("New password and confirm password do not match.", { position: "top-right" });
+      toast.error("New password and confirm password do not match.", {
+        position: "top-right",
+      });
       return;
     }
 
@@ -102,12 +109,16 @@ export default function Password({ isChangePassword = false, userEmail }) {
         currentPassword,
         newPassword,
       });
-      toast.success(res.data.message || "Password changed successfully!", { position: "top-right" });
+      toast.success(res.data.message || "Password changed successfully!", {
+        position: "top-right",
+      });
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to change password.", { position: "top-right" });
+      toast.error(err.response?.data?.message || "Failed to change password.", {
+        position: "top-right",
+      });
     } finally {
       setLoading(false);
     }
@@ -115,7 +126,6 @@ export default function Password({ isChangePassword = false, userEmail }) {
 
   return (
     <div style={{ maxWidth: 400, margin: "auto", marginTop: "3rem" }}>
-      {/* Forgot Password Step */}
       {step === "request" && !isChangePassword && (
         <>
           <h3>Forgot Password</h3>
@@ -144,7 +154,6 @@ export default function Password({ isChangePassword = false, userEmail }) {
         </>
       )}
 
-      {/* Reset Password Step */}
       {step === "reset" && (
         <>
           <h3>Reset Password</h3>
@@ -188,7 +197,6 @@ export default function Password({ isChangePassword = false, userEmail }) {
         </>
       )}
 
-      {/* Change Password Step */}
       {step === "change" && isChangePassword && (
         <>
           <h3>Change Password</h3>
@@ -245,7 +253,6 @@ export default function Password({ isChangePassword = false, userEmail }) {
         </>
       )}
 
-      {/* Done Step */}
       {step === "done" && (
         <div className="alert alert-success mt-5">
           Password reset successful! Redirecting to login page...

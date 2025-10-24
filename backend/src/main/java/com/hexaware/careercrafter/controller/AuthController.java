@@ -27,6 +27,7 @@ import java.util.UUID;
  * Rest Controller for authentication operations.
  * Handles user registration, login, forgot password, reset password, and OTP-based verification.
  */
+
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "http://localhost:3000")
@@ -54,7 +55,6 @@ public class AuthController {
     @Autowired
     private EmailService emailService;
 
-    // ✅ Register User
     @Operation(summary = "Register a new user")
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@Valid @RequestBody UserDTO userDTO) {
@@ -65,7 +65,6 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully!");
     }
 
-    // ✅ Login
     @Operation(summary = "Login and retrieve a JWT token")
     @PostMapping("/login")
     public ResponseEntity<?> createToken(@RequestBody Map<String, String> loginData) throws Exception {
@@ -87,7 +86,6 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    // ✅ Forgot Password - Send Reset Link via Email
     @Operation(summary = "Forgot password - send reset link via email")
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
@@ -102,23 +100,16 @@ public class AuthController {
                     .body(Map.of("message", "No user found with this email"));
         }
 
-        // Generate a unique token
         String token = UUID.randomUUID().toString();
         userService.savePasswordResetToken(userOpt.getUserId(), token);
-
-        // Create reset link (frontend URL)
         String resetLink = "http://localhost:3000/reset-password?token=" + token;
-
-        // Send the password reset email
         emailService.sendPasswordResetEmail(email, resetLink);
-
         return ResponseEntity.ok(Map.of(
                 "message", "Password reset link sent to your email.",
                 "email", email
         ));
     }
 
-    // ✅ Reset Password using Token
     @Operation(summary = "Reset password using token and new password")
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
@@ -144,7 +135,7 @@ public class AuthController {
     @Operation(summary = "Change password for logged-in user")
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(@RequestBody Map<String, String> request) {
-        String email = request.get("email"); // or get from JWT if authenticated
+        String email = request.get("email");
         String currentPassword = request.get("currentPassword");
         String newPassword = request.get("newPassword");
 
@@ -153,14 +144,12 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of("message", "Current and new passwords are required"));
         }
 
-        // Verify current password
         boolean valid = userService.verifyUserCredentials(email, currentPassword);
         if (!valid) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("message", "Current password is incorrect"));
         }
 
-        // Update to new password
         User user = userRepository.findByEmail(email);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -171,8 +160,6 @@ public class AuthController {
 
     }
 
-
-    // ✅ Send OTP
     @PostMapping("/send-otp")
     public ResponseEntity<String> sendOtp(@RequestBody Map<String, String> request) {
         String email = request.get("email");
@@ -186,7 +173,6 @@ public class AuthController {
         return ResponseEntity.ok("OTP sent to email");
     }
 
-    // ✅ Verify OTP
     @PostMapping("/verify-otp")
     public ResponseEntity<String> verifyOtp(@RequestBody Map<String, String> request) {
         String email = request.get("email");

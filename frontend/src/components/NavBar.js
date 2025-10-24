@@ -160,8 +160,8 @@ const Navbar = () => {
               {searchTerm && (
                 <span
                   onClick={() => {
-                    setSearchTerm(""); // clear search
-                    navigate("/jobs"); // show all jobs
+                    setSearchTerm("");
+                    navigate("/jobs");
                   }}
                   style={{
                     position: "absolute",
@@ -276,7 +276,6 @@ const Navbar = () => {
                 <FaClipboardList /> My Applications
               </Link>
 
-              {/* Notification Bell */}
               <div
                 style={{ position: "relative", cursor: "pointer" }}
                 onClick={handleBellClick}
@@ -351,7 +350,6 @@ const Navbar = () => {
                 <FaClipboardList /> Employer Applications
               </Link>
 
-              {/* Notification Bell */}
               <div
                 style={{ position: "relative", cursor: "pointer" }}
                 onClick={handleBellClick}
@@ -378,7 +376,6 @@ const Navbar = () => {
             </>
           )}
 
-          {/* Hamburger Menu Icon */}
           {isLoggedIn && (
             <FaBars
               className="hamburger-icon"

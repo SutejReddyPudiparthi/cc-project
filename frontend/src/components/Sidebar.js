@@ -51,7 +51,7 @@ export default function Sidebar({ isOpen, onClose }) {
     onClose();
     navigate(path, { state, replace: false, key: Date.now() });
     if (toastMessage) {
-      toast.success(toastMessage, { toastId: toastMessage }); // prevents duplicates
+      toast.success(toastMessage, { toastId: toastMessage });
     }
   };
 

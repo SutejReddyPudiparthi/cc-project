@@ -29,7 +29,6 @@ public class PasswordResetToken {
         return new PasswordResetToken(token, user, expiry);
     }
 
-
     public PasswordResetToken() {
     }
     

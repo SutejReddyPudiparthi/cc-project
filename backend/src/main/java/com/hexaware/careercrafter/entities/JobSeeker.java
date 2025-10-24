@@ -34,10 +34,6 @@ public class JobSeeker {
     private String email;
     private String phone;
     private String address;
-
-    // Remove this field as it is replaced by educationDetails list
-    // private String education;
-
     private String skills;
     private Integer experience;
 
@@ -67,7 +63,6 @@ public class JobSeeker {
     }
 
     public JobSeeker(int jobSeekerId, User user, String fullName, String phone, String address, String email, String gender, LocalDate dateOfBirth,
-        // Removed education from constructor arguments
         String skills, Integer experience, List<Resume> resumes, List<Application> applications,
         String aboutMe, List<Education> educationDetails, List<Certificate> certificates,
         List<Project> projects, List<SocialLink> socialLinks) {
@@ -154,8 +149,6 @@ public class JobSeeker {
     public void setAddress(String address) {
         this.address = address;
     }
-
-    /* Removed getter/setter for education string field */
 
     public String getSkills() {
         return skills;

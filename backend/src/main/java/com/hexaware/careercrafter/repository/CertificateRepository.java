@@ -7,5 +7,7 @@ import java.util.List;
 
 @Repository
 public interface CertificateRepository extends JpaRepository<Certificate, Integer> {
+	
     List<Certificate> findByJobSeeker_JobSeekerId(int jobSeekerId);
+    
 }

@@ -6,7 +6,6 @@ export default function PrivateRoute({ children, roles = [] }) {
   const { user, loadingUser } = useContext(AuthContext);
   const location = useLocation();
 
-  // CRITICAL: Wait for auth state to load from localStorage
   if (loadingUser) {
     return (
       <div
@@ -24,12 +23,10 @@ export default function PrivateRoute({ children, roles = [] }) {
     );
   }
 
-  // Now check if user is authenticated
   if (!user || !user.loggedIn) {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  // Check role-based access
   if (roles.length > 0) {
     const userRoles = user.roles || user.role || [];
     const roleList = Array.isArray(userRoles)

@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
 export default function PostJob() {
   const {
     register,
@@ -15,9 +14,7 @@ export default function PostJob() {
   } = useForm();
 
   const navigate = useNavigate();
-
   const postedDate = watch("postedDate");
-
   const todayDate = new Date().toISOString().split("T")[0];
 
   const extractDateOnly = (dateTimeString) => {
@@ -32,7 +29,6 @@ export default function PostJob() {
         toast.warn("No employer profile found");
         return;
       }
-
       if (data.postedDate && data.postedDate > todayDate) {
         toast.warn("Posted date cannot be a future date.");
         return;
@@ -54,7 +50,6 @@ export default function PostJob() {
           extractDateOnly(data.postedDate) ||
           new Date().toISOString().split("T")[0],
       };
-
       await api.post("/joblistings", payload);
       toast.success("Job posted successfully");
       navigate("/employer/dashboard");

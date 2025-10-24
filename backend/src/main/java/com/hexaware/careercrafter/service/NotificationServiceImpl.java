@@ -30,13 +30,12 @@ public class NotificationServiceImpl implements INotificationService {
                 dto.getUserId(), dto.getTitle(), dto.getMessage()
             );
             if (exists) {
-                return null; // skip creation if duplicate
+                return null;
             }
             
         Notification notification = convertToEntity(dto);
         Notification saved = notificationRepository.save(notification);
 
-        // Safely send email notification
         if (notification.getUserId() != null && notification.getUserId() > 0) {
             emailService.sendNotificationEmail(
                 notification.getUserId().intValue(),
@@ -88,7 +87,6 @@ public class NotificationServiceImpl implements INotificationService {
         notificationRepository.deleteById(id);
     }
 
-    // ===== Conversion Helpers =====
     private NotificationDTO convertToDTO(Notification entity) {
         NotificationDTO dto = new NotificationDTO();
         dto.setNotificationId(entity.getNotificationId());

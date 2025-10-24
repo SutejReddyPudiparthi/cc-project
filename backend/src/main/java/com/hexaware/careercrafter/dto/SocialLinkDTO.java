@@ -15,7 +15,7 @@ public class SocialLinkDTO {
     private int id;
 
     @NotBlank(message = "Platform is required")
-    private String platform;  // e.g., LinkedIn, GitHub
+    private String platform;
 
     @Pattern(regexp = "https?://.+", message = "Invalid URL")
     private String url;

@@ -24,7 +24,6 @@ const JobSeekerDashboard = () => {
     const fetchDashboard = async () => {
       setLoading(true);
       try {
-        // Fetch profile and recommendations in parallel
         const [profileRes, recommendedRes] = await Promise.all([
           api.get(`/jobseekers/${user.jobSeekerId}`),
           api.get(`/jobseekers/${user.jobSeekerId}/recommendations`),
@@ -33,14 +32,13 @@ const JobSeekerDashboard = () => {
         setProfile(profileRes.data);
         setRecommendedJobs(recommendedRes.data);
 
-        // Fetch only saved jobs if any
         const saved = localStorage.getItem("savedJobs");
         const savedArr = saved ? JSON.parse(saved) : [];
         if (savedArr.length > 0) {
           const savedJobsRes = await api.get(
             `/joblistings?ids=${savedArr.join(",")}`
           );
-          setSavedJobsIds(savedJobsRes.data); // directly store full job objects
+          setSavedJobsIds(savedJobsRes.data);
         }
       } catch (err) {
         console.error("Failed to load dashboard data", err);

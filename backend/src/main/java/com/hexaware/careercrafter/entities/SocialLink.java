@@ -15,7 +15,7 @@ public class SocialLink {
     private JobSeeker jobSeeker;
 
     @Column(nullable = false)
-    private String platform; // e.g., LinkedIn, GitHub
+    private String platform;
 
     @Column(nullable = false)
     private String url;

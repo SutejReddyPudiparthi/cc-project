@@ -18,7 +18,6 @@ const EmployerDashboard = () => {
   const loadDashboard = async () => {
     try {
       const jobsRes = await api.get("/joblistings");
-
       const activeJobs = jobsRes.data.filter(
         (job) => job.active && job.employerId === employerId
       );
@@ -70,7 +69,7 @@ const EmployerDashboard = () => {
       await api.delete(`/joblistings/${id}`);
       setJobs((prev) => prev.filter((job) => job.jobListingId !== id));
       setSelectedJob(null);
-      toast.success("Job deleted successfully!"); // ✅ Toast
+      toast.success("Job deleted successfully!");
     } catch (error) {
       toast.error(
         "Failed to delete job: " + (error.response?.data || error.message)
@@ -135,7 +134,6 @@ const EmployerDashboard = () => {
       )}
 
       <h3 className="mb-3">My Job Listings</h3>
-
       <div>
         {filteredJobs.map((job) => (
           <div

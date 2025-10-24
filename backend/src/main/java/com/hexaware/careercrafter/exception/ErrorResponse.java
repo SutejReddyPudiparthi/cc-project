@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
  * Standard error response model for REST APIs.
  */
 
-
 public class ErrorResponse {
     private LocalDateTime timestamp;
     private int status;

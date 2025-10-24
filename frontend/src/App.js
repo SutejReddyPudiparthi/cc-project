@@ -31,7 +31,6 @@ function App() {
       <Router>
         <Navbar />
         <div style={{ paddingBottom: "150px" }}>
-          {/* reserve space for footer */}
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
@@ -159,10 +158,9 @@ function App() {
           </Routes>
         </div>
         <Footer />
-        {/* Toast container */}
         <ToastContainer
           position="top-right"
-          autoClose={3000} // auto close after 3s
+          autoClose={3000}
           hideProgressBar={false}
           newestOnTop
           closeOnClick

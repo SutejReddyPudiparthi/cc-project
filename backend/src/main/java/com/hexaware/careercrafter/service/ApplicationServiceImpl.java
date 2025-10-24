@@ -69,7 +69,6 @@ public class ApplicationServiceImpl implements IApplicationService {
         Application saved = applicationRepository.save(entity);
         logger.info("Application created with ID {}", saved.getApplicationId());
 
-        // Safe notification & email sending to Employer
         try {
             if (jobListing.getEmployer() != null && jobListing.getEmployer().getUser() != null) {
                 Long employerUserId = Long.valueOf(jobListing.getEmployer().getUser().getUserId());
@@ -147,7 +146,6 @@ public class ApplicationServiceImpl implements IApplicationService {
         Application updated = applicationRepository.save(entity);
         logger.info("Application updated with ID {}", updated.getApplicationId());
 
-        // Safe notification & email sending to JobSeeker
         try {
             if (jobSeeker.getUser() != null) {
                 Long jobSeekerUserId = Long.valueOf(jobSeeker.getUser().getUserId());

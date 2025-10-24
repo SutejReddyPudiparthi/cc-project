@@ -20,6 +20,7 @@ import java.util.List;
  * Implementation of IEmployerService.
  * Handles employer-related operations such as creation, retrieval, update, and deletion.
  */
+
 @Service
 public class EmployerServiceImpl implements IEmployerService {
 
@@ -31,14 +32,10 @@ public class EmployerServiceImpl implements IEmployerService {
     @Autowired
     private UserRepository userRepository;
 
-    /**
-     * Create a new Employer record.
-     */
     @Override
     public EmployerDTO createEmployer(EmployerDTO employerDTO) {
         logger.debug("Creating employer for userId: {}, companyName: {}", employerDTO.getUserId(), employerDTO.getCompanyName());
 
-        // ✅ Validate essential fields
         if (employerDTO.getUserId() == 0 || employerDTO.getCompanyName() == null) {
             throw new InvalidRequestException("UserId and Company Name must be provided.");
         }
@@ -49,11 +46,9 @@ public class EmployerServiceImpl implements IEmployerService {
             throw new InvalidRequestException("Work email must be provided.");
         }
 
-        // ✅ Verify that the user exists
         User user = userRepository.findById(employerDTO.getUserId())
                 .orElseThrow(() -> new InvalidRequestException("Invalid UserId: " + employerDTO.getUserId()));
 
-        // ✅ Convert DTO to Entity
         Employer employer = dtoToEntity(employerDTO);
         employer.setUser(user);
 
@@ -63,9 +58,6 @@ public class EmployerServiceImpl implements IEmployerService {
         return entityToDto(savedEmployer);
     }
 
-    /**
-     * Retrieve all employers.
-     */
     @Override
     public List<EmployerDTO> getAllEmployers() {
         List<Employer> employers = employerRepository.findAll();
@@ -79,9 +71,6 @@ public class EmployerServiceImpl implements IEmployerService {
         return dtoList;
     }
 
-    /**
-     * Retrieve employer by employerId.
-     */
     @Override
     public EmployerDTO getEmployerById(int id) {
         Employer employer = employerRepository.findById(id)
@@ -89,9 +78,6 @@ public class EmployerServiceImpl implements IEmployerService {
         return entityToDto(employer);
     }
 
-    /**
-     * Retrieve employer by userId.
-     */
     @Override
     public EmployerDTO getEmployerByUserId(int userId) {
         logger.info("Fetching employer for userId: {}", userId);
@@ -104,9 +90,6 @@ public class EmployerServiceImpl implements IEmployerService {
         return entityToDto(employer);
     }
 
-    /**
-     * Delete employer by ID.
-     */
     @Override
     public void deleteEmployer(int id) {
         if (!employerRepository.existsById(id)) {
@@ -116,9 +99,6 @@ public class EmployerServiceImpl implements IEmployerService {
         logger.info("Employer deleted successfully with ID: {}", id);
     }
 
-    /**
-     * Update existing employer.
-     */
     @Override
     public EmployerDTO updateEmployer(EmployerDTO employerDTO) {
         logger.debug("Updating employer with ID: {}", employerDTO.getEmployerId());
@@ -142,9 +122,6 @@ public class EmployerServiceImpl implements IEmployerService {
         return entityToDto(updated);
     }
 
-    /**
-     * Convert Entity → DTO
-     */
     private EmployerDTO entityToDto(Employer employer) {
         EmployerDTO dto = new EmployerDTO();
         dto.setEmployerId(employer.getEmployerId());
@@ -157,9 +134,6 @@ public class EmployerServiceImpl implements IEmployerService {
         return dto;
     }
 
-    /**
-     * Convert DTO → Entity
-     */
     private Employer dtoToEntity(EmployerDTO dto) {
         Employer employer = new Employer();
         employer.setEmployerId(dto.getEmployerId());
